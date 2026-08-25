@@ -29,11 +29,11 @@ repositories {
 }
 
 dependencies {
-    compileOnly("com.github.CoffeePopStudio:BetterPlugin:26.8.1-mc26.1.2")
+    compileOnly("com.github.CoffeePopStudio:BetterPlugin:{{plugin_version}}")
 }
 ```
 
-> 某个版本第一次被请求时 JitPack 会在云端构建，可能需要等待片刻；构建状态与版本列表见 [JitPack](https://jitpack.io/#CoffeePopStudio/BetterPlugin/26.8.1-mc26.1.2)。
+> 某个版本第一次被请求时 JitPack 会在云端构建，可能需要等待片刻；构建状态与版本列表见 [JitPack](https://jitpack.io/#CoffeePopStudio/BetterPlugin/{{plugin_version}})。
 
 ## 声明运行期依赖
 

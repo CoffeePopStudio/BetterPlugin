@@ -16,11 +16,11 @@ repositories {
 }
 
 dependencies {
-    compileOnly("com.github.CoffeePopStudio:BetterPlugin:26.8.1-mc26.1.2")
+    compileOnly("com.github.CoffeePopStudio:BetterPlugin:{{plugin_version}}")
 }
 ```
 
-构建状态与版本列表见 [JitPack](https://jitpack.io/#CoffeePopStudio/BetterPlugin/26.8.1-mc26.1.2)。
+构建状态与版本列表见 [JitPack](https://jitpack.io/#CoffeePopStudio/BetterPlugin/{{plugin_version}})。
 
 ## 2. 添加运行期依赖
 
@@ -31,7 +31,7 @@ dependencies {
 同时把 BetterPlugin 的 jar 放到服务端的 `plugins/` 目录，例如从 JitPack 下载：
 
 ```text
-https://jitpack.io/com/github/CoffeePopStudio/BetterPlugin/26.8.1-mc26.1.2/BetterPlugin-26.8.1-mc26.1.2.jar
+https://jitpack.io/com/github/CoffeePopStudio/BetterPlugin/{{plugin_version}}/BetterPlugin-{{plugin_version}}.jar
 ```
 
 > `plugin.yml` 的 `depend` 只负责运行期加载顺序；编译仍需第 1 步的依赖。

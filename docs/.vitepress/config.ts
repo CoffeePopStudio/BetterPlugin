@@ -1,6 +1,19 @@
+import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vitepress'
 
+const root = new URL('../..', import.meta.url)
 const base = process.env.DOCS_BASE ?? '/'
+
+function readPluginVersion(): string {
+  const properties = readFileSync(new URL('gradle.properties', root), 'utf8')
+  const match = properties.match(/^version=(.+)$/m)
+  if (!match) {
+    throw new Error('version not found in gradle.properties')
+  }
+  return match[1].trim()
+}
+
+const pluginVersion = readPluginVersion()
 
 export default defineConfig({
   title: 'BetterPlugin',
@@ -12,6 +25,30 @@ export default defineConfig({
   head: [
     ['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}assets/logo.svg` }],
   ],
+  markdown: {
+    config(md) {
+      md.core.ruler.push('betterplugin-version', (state) => {
+        const replace = (tokens: any[]) => {
+          for (const token of tokens) {
+            if (token.content) {
+              token.content = token.content.replaceAll('{{plugin_version}}', pluginVersion)
+            }
+            for (const attr of ['href', 'src']) {
+              const value = token.attrGet(attr)
+              if (value) {
+                token.attrSet(attr, value.replaceAll('{{plugin_version}}', pluginVersion))
+              }
+            }
+            if (token.children) {
+              replace(token.children)
+            }
+          }
+        }
+        replace(state.tokens)
+        return true
+      })
+    },
+  },
   themeConfig: {
     logo: `${base}assets/logo.svg`,
     search: {
