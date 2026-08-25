@@ -1,0 +1,84 @@
+name: Bug 报告
+description: 报告使用 BetterPlugin 时遇到的问题
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        感谢你花时间反馈问题。提交前请确认：
+
+        - 已查看 [BetterPlugin 文档](https://CoffeePopStudio.github.io/BetterPlugin/)
+        - 已搜索 issue，避免重复提交
+
+  - type: input
+    id: version
+    attributes:
+      label: BetterPlugin 版本
+      description: 例如 `26.8.1-mc26.1.2`
+      placeholder: "26.8.1-mc26.1.2"
+    validations:
+      required: true
+
+  - type: input
+    id: paper-version
+    attributes:
+      label: Paper 版本
+      placeholder: "26.1.2"
+    validations:
+      required: true
+
+  - type: input
+    id: java-version
+    attributes:
+      label: JDK 版本
+      placeholder: "25"
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: 涉及模块
+      options:
+        - 插件基础（api.plugin）
+        - 命令 API（api.command）
+        - 异常（api.exception）
+        - 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: 问题描述
+      description: 清晰描述发生了什么。
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 复现步骤
+      description: 请提供最小复现步骤或示例代码。
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: 预期行为
+      description: 你期望发生什么？
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 日志与堆栈
+      description: 粘贴相关日志或异常堆栈。
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: 其他信息
