@@ -6,6 +6,4 @@ package org.coffeepop.betterPlugin.api.plugin;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
-public abstract class PluginBase extends JavaPlugin {
-
-}
+public abstract class PluginBase extends JavaPlugin {}
