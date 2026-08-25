@@ -2,6 +2,20 @@
 
 以下示例均假设在 `JavaPlugin.onEnable()` 中调用，`this` 为当前插件实例。
 
+::: warning 实验性 API
+`CommandBuilder` 与 `CommandException` 目前是实验性 API，接口可能随版本调整。
+:::
+
+## 示例所需 import
+
+```java
+import org.bukkit.plugin.java.JavaPlugin;
+import org.coffeepop.betterPlugin.api.command.CommandBuilder;
+import io.papermc.paper.command.brigadier.Commands; // 子命令示例需要
+import java.time.Duration;                        // 冷却示例需要
+import java.util.List;                            // 补全示例需要
+```
+
 ## 基础命令
 
 ```java
@@ -73,6 +87,8 @@ CommandBuilder.create(this)
         .register();
 ```
 
+> `playerOnly()` 与 `consoleOnly()` 不要在同一条命令上同时设置（限制条件会互相覆盖，以后设置的为准）。
+
 ## 冷却
 
 ```java
@@ -86,12 +102,20 @@ CommandBuilder.create(this)
         .register();
 ```
 
+冷却仅对玩家生效、只作用于根执行路径，且提示文案暂为固定英文，详见 [API 参考](/command/api)。
+
 ## 子命令
+
+子命令必须保留父命令执行器，否则 `register()` 抛出 `CommandException`：
 
 ```java
 CommandBuilder.create(this)
         .name("admin")
         .permission("myplugin.admin")
+        .executes((sender, command, label, args) -> {
+            sender.sendPlainMessage("用法: /admin <reload|status>");
+            return true;
+        })
         .then(Commands.literal("reload")
                 .executes(ctx -> {
                     ctx.getSource().getSender().sendPlainMessage("reloaded!");
@@ -115,8 +139,6 @@ CommandBuilder.create(this)
         .permission("myplugin.tpa")
         .aliases("tpahere")
         .description("请求传送到某玩家")
-        .usage("/tpa <玩家>")
-        .permissionMessage("你没有权限使用 /tpa")
         .cooldown(Duration.ofSeconds(30))
         .executes((sender, command, label, args) -> {
             if (args.length < 1) {
