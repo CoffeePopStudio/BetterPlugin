@@ -16,7 +16,7 @@ commands:
 <<< @/snippets/plugin.yml
 
 - `api-version` 填写你服务端对应的 Minecraft 版本，本项目当前目标版本为 `26.1.2`
-- `depend` 声明运行期依赖 `BetterPlugin`（编译期依赖见 [集成接入](/guide/third-party)）
+- `depend` 声明运行期依赖 `BetterPlugin`（编译期依赖见 [集成接入](/guide/third-party)，推荐通过 JitPack 获取）
 
 ## 依赖关系
 
