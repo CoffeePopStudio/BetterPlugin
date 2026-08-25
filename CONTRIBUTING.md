@@ -1,45 +1,45 @@
 # Contributing to BetterPlugin
 
-感谢你为 BetterPlugin 做出贡献。提交代码前请先阅读以下约定。
+Thanks for contributing to BetterPlugin. Please read the following conventions before submitting changes.
 
-## 1. 报告问题
+## 1. Reporting Issues
 
-- 先搜索已有 issue，避免重复提交。
-- 提供复现步骤、Paper 版本与相关日志。
+- Search existing issues first to avoid duplicates.
+- Include reproduction steps, the Paper version and relevant logs.
 
-## 2. Pull Request
+## 2. Pull Requests
 
-- 一个 PR 只做一件事。
-- 提交前确保 `./gradlew build` 通过。
-- 保持提交信息清晰，推荐使用 Conventional Commits。
+- Keep one PR focused on a single change.
+- Make sure `./gradlew build` passes before submitting.
+- Keep commit messages clear; Conventional Commits are preferred.
 
-## 3. 提交信息
+## 3. Commit Messages
 
-推荐格式：`<type>: <summary>`，例如 `feat: add home command`。
+Preferred format: `<type>: <summary>`, for example `feat: add home command`.
 
-常用 type：
+Common types:
 
-- `feat` — 新功能
-- `fix` — 修复 bug
-- `refactor` — 重构
-- `chore` — 杂项（依赖更新、构建配置等）
-- `docs` — 文档更新
+- `feat` — new feature
+- `fix` — bug fix
+- `refactor` — refactoring
+- `chore` — chores (dependency updates, build config, etc.)
+- `docs` — documentation updates
 
-## 4. 分支命名
+## 4. Branch Naming
 
 ### 4.1 Branch Naming
 
-所有 PR 分支必须使用以下前缀：
+All pull request branches must use one of the following prefixes:
 
-| 前缀 | 用途 |
+| Prefix | Purpose |
 | --- | --- |
-| `feat/` | 新功能 |
-| `fix/` | 修复 bug |
-| `refactor/` | 重构 |
-| `chore/` | 杂项（依赖更新、构建配置等） |
-| `docs/` | 文档更新 |
+| `feat/` | New feature |
+| `fix/` | Bug fix |
+| `refactor/` | Refactoring |
+| `chore/` | Chores (dependency updates, build config, etc.) |
+| `docs/` | Documentation updates |
 
-规则：
+Rules:
 
-- 分支名格式为 `<prefix>/<description>`，例如 `feat/add-login`。
-- 不要直接从 `main` 或 `master` 分支发起 PR。
+- Branch names use the format `<prefix>/<description>`, for example `feat/add-login`.
+- Do not open pull requests directly from `main` or `master`.

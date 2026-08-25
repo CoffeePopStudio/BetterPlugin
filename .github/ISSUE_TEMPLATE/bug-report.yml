@@ -1,21 +1,21 @@
-name: Bug 报告
-description: 报告使用 BetterPlugin 时遇到的问题
+name: Bug report
+description: Report a problem with BetterPlugin
 title: "[Bug] "
 labels: [bug]
 body:
   - type: markdown
     attributes:
       value: |
-        感谢你花时间反馈问题。提交前请确认：
+        Thanks for taking the time to report an issue. Before submitting, please:
 
-        - 已查看 [BetterPlugin 文档](https://CoffeePopStudio.github.io/BetterPlugin/)
-        - 已搜索 issue，避免重复提交
+        - Check the [BetterPlugin documentation](https://CoffeePopStudio.github.io/BetterPlugin/)
+        - Search existing issues to avoid duplicates
 
   - type: input
     id: version
     attributes:
-      label: BetterPlugin 版本
-      description: 例如 `26.8.1-mc26.1.2`
+      label: BetterPlugin version
+      description: For example `26.8.1-mc26.1.2`
       placeholder: "26.8.1-mc26.1.2"
     validations:
       required: true
@@ -23,7 +23,7 @@ body:
   - type: input
     id: paper-version
     attributes:
-      label: Paper 版本
+      label: Paper version
       placeholder: "26.1.2"
     validations:
       required: true
@@ -31,34 +31,34 @@ body:
   - type: input
     id: java-version
     attributes:
-      label: JDK 版本
+      label: JDK version
       placeholder: "25"
 
   - type: dropdown
     id: module
     attributes:
-      label: 涉及模块
+      label: Affected module
       options:
-        - 插件基础（api.plugin）
-        - 命令 API（api.command）
-        - 异常（api.exception）
-        - 其他
+        - Plugin base (api.plugin)
+        - Command API (api.command)
+        - Exceptions (api.exception)
+        - Other
     validations:
       required: true
 
   - type: textarea
     id: what-happened
     attributes:
-      label: 问题描述
-      description: 清晰描述发生了什么。
+      label: What happened
+      description: Describe the problem clearly.
     validations:
       required: true
 
   - type: textarea
     id: reproduce
     attributes:
-      label: 复现步骤
-      description: 请提供最小复现步骤或示例代码。
+      label: Reproduction steps
+      description: Provide minimal reproduction steps or sample code.
       placeholder: |
         1. ...
         2. ...
@@ -69,16 +69,16 @@ body:
   - type: textarea
     id: expected
     attributes:
-      label: 预期行为
-      description: 你期望发生什么？
+      label: Expected behavior
+      description: What did you expect to happen?
 
   - type: textarea
     id: logs
     attributes:
-      label: 日志与堆栈
-      description: 粘贴相关日志或异常堆栈。
+      label: Logs and stack traces
+      description: Paste any relevant logs or exceptions.
 
   - type: textarea
     id: extra
     attributes:
-      label: 其他信息
+      label: Additional context

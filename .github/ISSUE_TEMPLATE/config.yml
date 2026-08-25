@@ -1,5 +1,5 @@
 blank_issues_enabled: true
 contact_links:
-  - name: BetterPlugin 文档
+  - name: BetterPlugin Documentation
     url: https://CoffeePopStudio.github.io/BetterPlugin/
-    about: 使用问题请先查阅 BetterPlugin 文档。
+    about: Please check the documentation before opening a usage question.
