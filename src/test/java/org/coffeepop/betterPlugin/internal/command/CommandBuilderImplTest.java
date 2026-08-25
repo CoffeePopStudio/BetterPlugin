@@ -1,0 +1,484 @@
+package org.coffeepop.betterPlugin.internal.command;
+
+import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.ParseResults;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.suggestion.Suggestion;
+import com.mojang.brigadier.suggestion.Suggestions;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
+import org.coffeepop.betterPlugin.api.command.CommandBuilder;
+import org.coffeepop.betterPlugin.api.exception.CommandException;
+import org.coffeepop.betterPlugin.bootstrap.BetterPlugin;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockbukkit.mockbukkit.MockBukkit;
+import org.mockbukkit.mockbukkit.ServerMock;
+import org.mockbukkit.mockbukkit.command.CommandSourceStackMock;
+import org.mockbukkit.mockbukkit.command.brigadier.PaperCommandsMock;
+import org.mockbukkit.mockbukkit.entity.PlayerMock;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class CommandBuilderImplTest {
+
+    private ServerMock server;
+    private BetterPlugin plugin;
+
+    @BeforeEach
+    void setUp() {
+        MockBukkit.mock();
+        server = MockBukkit.getMock();
+        plugin = MockBukkit.load(BetterPlugin.class);
+    }
+
+    @AfterEach
+    void tearDown() {
+        MockBukkit.unmock();
+    }
+
+    @Test
+    void builderMethodsAreFluent() {
+        CommandBuilderImpl builder = new CommandBuilderImpl();
+
+        assertSame(builder, builder.name("cmd"));
+        assertSame(builder, builder.permission("test.perm"));
+        assertSame(builder, builder.aliases("alias1", "alias2"));
+        assertSame(builder, builder.plugin(plugin));
+        assertSame(builder, builder.description("desc"));
+        assertSame(builder, builder.usage("/cmd"));
+        assertSame(builder, builder.permissionMessage("no permission"));
+        assertSame(builder, builder.playerOnly());
+        assertSame(builder, builder.consoleOnly());
+        assertSame(builder, builder.cooldown(Duration.ofSeconds(1)));
+        assertSame(builder, builder.then(LiteralArgumentBuilder.<CommandSourceStack>literal("sub")));
+        assertSame(builder, builder.context(null));
+        assertSame(builder, builder.tabCompleter(null));
+    }
+
+    @Test
+    void registerRejectsNullName() {
+        CommandBuilderImpl builder = new CommandBuilderImpl();
+        assertThrows(CommandException.class, builder::register);
+    }
+
+    @Test
+    void registerRejectsEmptyName() {
+        CommandBuilderImpl builder = new CommandBuilderImpl();
+        builder.name("");
+        assertThrows(CommandException.class, builder::register);
+    }
+
+    @Test
+    void registerRejectsNullContext() {
+        CommandBuilderImpl builder = new CommandBuilderImpl();
+        builder.name("cmd");
+        assertThrows(CommandException.class, builder::register);
+    }
+
+    @Test
+    void registerAddsCommandToRegistryAndExecutesIt() throws Exception {
+        AtomicInteger executions = new AtomicInteger();
+        CommandContext<CommandSourceStack> context = createContext("greet", executions);
+
+        CommandBuilder.create()
+                .name("greet")
+                .context(context)
+                .register();
+
+        CommandRegistry registry = plugin.getCommandRegistry();
+        PaperCommandsMock commands = PaperCommandsMock.INSTANCE;
+        commands.newDispatcher();
+        commands.setCurrentContext(plugin);
+        registry.registerAll(commands);
+        CommandDispatcher<CommandSourceStack> dispatcher = commands.getDispatcherInternal();
+
+        CommandSourceStack source = CommandSourceStackMock.from(server.getConsoleSender());
+        int result = assertDoesNotThrow(() -> dispatcher.execute("greet", source));
+
+        assertEquals(1, result);
+        assertEquals(1, executions.get());
+    }
+
+    @Test
+    void registerAppliesPermissionRequirement() throws Exception {
+        AtomicInteger executions = new AtomicInteger();
+        CommandContext<CommandSourceStack> context = createContext("secret", executions);
+
+        CommandBuilder.create()
+                .name("secret")
+                .permission("test.secret")
+                .context(context)
+                .register();
+
+        CommandRegistry registry = plugin.getCommandRegistry();
+        PaperCommandsMock commands = PaperCommandsMock.INSTANCE;
+        commands.newDispatcher();
+        commands.setCurrentContext(plugin);
+        registry.registerAll(commands);
+        CommandDispatcher<CommandSourceStack> dispatcher = commands.getDispatcherInternal();
+
+        PlayerMock player = server.addPlayer();
+        CommandSourceStack noPermissionSource = CommandSourceStackMock.from(player);
+
+        assertThrows(CommandSyntaxException.class, () -> dispatcher.execute("secret", noPermissionSource));
+        assertEquals(0, executions.get(), "command must not run without the required permission");
+
+        player.addAttachment(plugin, "test.secret", true);
+        CommandSourceStack withPermissionSource = CommandSourceStackMock.from(player);
+
+        int result = assertDoesNotThrow(() -> dispatcher.execute("secret", withPermissionSource));
+        assertEquals(1, result);
+        assertEquals(1, executions.get());
+    }
+
+    @Test
+    void registerRegistersAliases() {
+        AtomicInteger executions = new AtomicInteger();
+        CommandContext<CommandSourceStack> context = createContext("main", executions);
+
+        CommandBuilder.create()
+                .name("main")
+                .aliases("alias-a", "alias-b")
+                .context(context)
+                .register();
+
+        CommandRegistry registry = plugin.getCommandRegistry();
+        PaperCommandsMock commands = PaperCommandsMock.INSTANCE;
+        commands.newDispatcher();
+        commands.setCurrentContext(plugin);
+        registry.registerAll(commands);
+
+        assertNotNull(commands.getDispatcherInternal().getRoot().getChild("main"));
+        assertNotNull(commands.getDispatcherInternal().getRoot().getChild("alias-a"));
+        assertNotNull(commands.getDispatcherInternal().getRoot().getChild("alias-b"));
+    }
+
+    @Test
+    void registerThenDispatchThroughServerExecutesCommand() {
+        AtomicInteger executions = new AtomicInteger();
+        CommandContext<CommandSourceStack> context = createContext("hello", executions);
+
+        CommandBuilder.create()
+                .name("hello")
+                .context(context)
+                .register();
+
+        boolean success = server.dispatchCommand(server.getConsoleSender(), "hello");
+
+        assertTrue(success, "dispatchCommand should return true for a successfully executed command");
+        assertEquals(1, executions.get());
+    }
+
+    @Test
+    void executesCommandExecutorReceivesSenderAndArgs() throws Exception {
+        AtomicReference<CommandSender> seenSender = new AtomicReference<>();
+        AtomicReference<String[]> seenArgs = new AtomicReference<>();
+        AtomicInteger executions = new AtomicInteger();
+
+        CommandExecutor executor = (sender, command, label, args) -> {
+            seenSender.set(sender);
+            seenArgs.set(args);
+            executions.incrementAndGet();
+            return true;
+        };
+
+        CommandBuilder.create()
+                .name("exec")
+                .executes(executor)
+                .register();
+
+        CommandRegistry registry = plugin.getCommandRegistry();
+        PaperCommandsMock commands = PaperCommandsMock.INSTANCE;
+        commands.newDispatcher();
+        commands.setCurrentContext(plugin);
+        registry.registerAll(commands);
+        CommandDispatcher<CommandSourceStack> dispatcher = commands.getDispatcherInternal();
+
+        CommandSourceStack source = CommandSourceStackMock.from(server.getConsoleSender());
+        int rootResult = assertDoesNotThrow(() -> dispatcher.execute("exec", source));
+        assertEquals(1, rootResult);
+        assertEquals(1, executions.get());
+        assertNotNull(seenSender.get());
+        assertEquals(0, seenArgs.get().length);
+
+        int argsResult = assertDoesNotThrow(() -> dispatcher.execute("exec one two", source));
+        assertEquals(1, argsResult);
+        assertEquals(2, executions.get());
+        assertArrayEquals(new String[]{"one", "two"}, seenArgs.get());
+    }
+
+    @Test
+    void executesRawBrigadierCommand() throws Exception {
+        AtomicReference<CommandSender> seenSender = new AtomicReference<>();
+        com.mojang.brigadier.Command<CommandSourceStack> rawCommand = ctx -> {
+            seenSender.set(ctx.getSource().getSender());
+            return 1;
+        };
+
+        CommandBuilder.create()
+                .name("raw")
+                .executes(rawCommand)
+                .register();
+
+        CommandRegistry registry = plugin.getCommandRegistry();
+        PaperCommandsMock commands = PaperCommandsMock.INSTANCE;
+        commands.newDispatcher();
+        commands.setCurrentContext(plugin);
+        registry.registerAll(commands);
+        CommandDispatcher<CommandSourceStack> dispatcher = commands.getDispatcherInternal();
+
+        CommandSourceStack source = CommandSourceStackMock.from(server.getConsoleSender());
+        int result = assertDoesNotThrow(() -> dispatcher.execute("raw", source));
+
+        assertEquals(1, result);
+        assertNotNull(seenSender.get());
+        assertSame(server.getConsoleSender(), seenSender.get());
+    }
+
+    @Test
+    void createWithPluginRegistersAndExecutes() throws Exception {
+        AtomicInteger executions = new AtomicInteger();
+
+        CommandBuilder.create(plugin)
+                .name("owned")
+                .executes((sender, command, label, args) -> {
+                    executions.incrementAndGet();
+                    return true;
+                })
+                .register();
+
+        CommandRegistry registry = plugin.getCommandRegistry();
+        PaperCommandsMock commands = PaperCommandsMock.INSTANCE;
+        commands.newDispatcher();
+        commands.setCurrentContext(plugin);
+        registry.registerAll(commands);
+        CommandDispatcher<CommandSourceStack> dispatcher = commands.getDispatcherInternal();
+
+        CommandSourceStack source = CommandSourceStackMock.from(server.getConsoleSender());
+        int result = assertDoesNotThrow(() -> dispatcher.execute("owned", source));
+
+        assertEquals(1, result);
+        assertEquals(1, executions.get());
+    }
+
+    @Test
+    void registerAppliesTabCompleter() throws Exception {
+        AtomicInteger executions = new AtomicInteger();
+        AtomicReference<Command> seenCommand = new AtomicReference<>();
+        CommandContext<CommandSourceStack> context = createContext("complete", executions);
+
+        TabCompleter completer = (sender, command, alias, args) -> {
+            seenCommand.set(command);
+            if (args.length == 1 && args[0].startsWith("a")) {
+                return List.of("apple", "avocado");
+            }
+            return List.of();
+        };
+
+        CommandBuilder.create()
+                .name("complete")
+                .permission("test.complete")
+                .aliases("c")
+                .context(context)
+                .tabCompleter(completer)
+                .register();
+
+        CommandRegistry registry = plugin.getCommandRegistry();
+        PaperCommandsMock commands = PaperCommandsMock.INSTANCE;
+        commands.newDispatcher();
+        commands.setCurrentContext(plugin);
+        registry.registerAll(commands);
+        CommandDispatcher<CommandSourceStack> dispatcher = commands.getDispatcherInternal();
+
+        CommandSourceStack source = CommandSourceStackMock.from(server.getConsoleSender());
+        Suggestions suggestions = dispatcher.getCompletionSuggestions(dispatcher.parse("complete a", source)).join();
+
+        List<String> completions = suggestions.getList().stream().map(Suggestion::getText).toList();
+        assertTrue(completions.contains("apple"));
+        assertTrue(completions.contains("avocado"));
+
+        assertNotNull(seenCommand.get(), "TabCompleter should receive the lightweight command adapter");
+        assertEquals("complete", seenCommand.get().getName());
+        assertEquals(List.of("c"), seenCommand.get().getAliases());
+        assertEquals("test.complete", seenCommand.get().getPermission());
+
+        int result = assertDoesNotThrow(() -> dispatcher.execute("complete hello", source));
+        assertEquals(1, result);
+        assertEquals(1, executions.get());
+    }
+
+    @Test
+    void registerAppliesCommandMetadataToAdapter() throws Exception {
+        AtomicReference<Command> seenCommand = new AtomicReference<>();
+
+        CommandBuilder builder = CommandBuilder.create()
+                .name("meta")
+                .description("A meta command")
+                .usage("/meta <value>")
+                .permissionMessage("No permission!")
+                .executes((sender, command, label, args) -> true)
+                .tabCompleter((sender, command, label, args) -> {
+                    seenCommand.set(command);
+                    return List.of();
+                });
+
+        CommandDispatcher<CommandSourceStack> dispatcher = registerAndGetDispatcher(builder);
+        CommandSourceStack source = CommandSourceStackMock.from(server.getConsoleSender());
+        dispatcher.getCompletionSuggestions(dispatcher.parse("meta ", source)).join();
+
+        assertNotNull(seenCommand.get());
+        assertEquals("A meta command", seenCommand.get().getDescription());
+        assertEquals("/meta <value>", seenCommand.get().getUsage());
+        assertEquals("No permission!", seenCommand.get().getPermissionMessage());
+    }
+
+    @Test
+    void registerPlayerOnlyRejectsConsole() throws Exception {
+        AtomicInteger executions = new AtomicInteger();
+
+        CommandBuilder builder = CommandBuilder.create()
+                .name("playeronly")
+                .playerOnly()
+                .executes((sender, command, label, args) -> {
+                    executions.incrementAndGet();
+                    return true;
+                });
+
+        CommandDispatcher<CommandSourceStack> dispatcher = registerAndGetDispatcher(builder);
+        CommandSourceStack consoleSource = CommandSourceStackMock.from(server.getConsoleSender());
+
+        assertThrows(CommandSyntaxException.class, () -> dispatcher.execute("playeronly", consoleSource));
+        assertEquals(0, executions.get());
+
+        PlayerMock player = server.addPlayer();
+        CommandSourceStack playerSource = CommandSourceStackMock.from(player);
+        int result = assertDoesNotThrow(() -> dispatcher.execute("playeronly", playerSource));
+
+        assertEquals(1, result);
+        assertEquals(1, executions.get());
+    }
+
+    @Test
+    void registerConsoleOnlyRejectsPlayer() throws Exception {
+        AtomicInteger executions = new AtomicInteger();
+
+        CommandBuilder builder = CommandBuilder.create()
+                .name("consoleonly")
+                .consoleOnly()
+                .executes((sender, command, label, args) -> {
+                    executions.incrementAndGet();
+                    return true;
+                });
+
+        CommandDispatcher<CommandSourceStack> dispatcher = registerAndGetDispatcher(builder);
+        PlayerMock player = server.addPlayer();
+        CommandSourceStack playerSource = CommandSourceStackMock.from(player);
+
+        assertThrows(CommandSyntaxException.class, () -> dispatcher.execute("consoleonly", playerSource));
+        assertEquals(0, executions.get());
+
+        CommandSourceStack consoleSource = CommandSourceStackMock.from(server.getConsoleSender());
+        int result = assertDoesNotThrow(() -> dispatcher.execute("consoleonly", consoleSource));
+
+        assertEquals(1, result);
+        assertEquals(1, executions.get());
+    }
+
+    @Test
+    void registerCooldownBlocksRepeatedExecution() throws Exception {
+        AtomicInteger executions = new AtomicInteger();
+
+        CommandBuilder builder = CommandBuilder.create()
+                .name("cooldown")
+                .cooldown(Duration.ofSeconds(60))
+                .executes((sender, command, label, args) -> {
+                    executions.incrementAndGet();
+                    return true;
+                });
+
+        CommandDispatcher<CommandSourceStack> dispatcher = registerAndGetDispatcher(builder);
+        PlayerMock player = server.addPlayer();
+        CommandSourceStack source = CommandSourceStackMock.from(player);
+
+        int first = assertDoesNotThrow(() -> dispatcher.execute("cooldown", source));
+        int second = assertDoesNotThrow(() -> dispatcher.execute("cooldown", source));
+
+        assertEquals(1, first);
+        assertEquals(0, second);
+        assertEquals(1, executions.get());
+    }
+
+    @Test
+    void registerSubCommands() throws Exception {
+        AtomicInteger rootExecutions = new AtomicInteger();
+        AtomicInteger subExecutions = new AtomicInteger();
+
+        CommandBuilder builder = CommandBuilder.create()
+                .name("parent")
+                .executes((sender, command, label, args) -> {
+                    rootExecutions.incrementAndGet();
+                    return true;
+                })
+                .then(LiteralArgumentBuilder
+                        .<CommandSourceStack>literal("sub")
+                        .executes(ctx -> {
+                            subExecutions.incrementAndGet();
+                            return 1;
+                        }));
+
+        CommandDispatcher<CommandSourceStack> dispatcher = registerAndGetDispatcher(builder);
+        CommandSourceStack source = CommandSourceStackMock.from(server.getConsoleSender());
+
+        int rootResult = assertDoesNotThrow(() -> dispatcher.execute("parent", source));
+        int subResult = assertDoesNotThrow(() -> dispatcher.execute("parent sub", source));
+
+        assertEquals(1, rootResult);
+        assertEquals(1, subResult);
+        assertEquals(1, rootExecutions.get());
+        assertEquals(1, subExecutions.get());
+    }
+
+    private CommandDispatcher<CommandSourceStack> registerAndGetDispatcher(CommandBuilder builder) {
+        builder.register();
+        CommandRegistry registry = plugin.getCommandRegistry();
+        PaperCommandsMock commands = PaperCommandsMock.INSTANCE;
+        commands.newDispatcher();
+        commands.setCurrentContext(plugin);
+        registry.registerAll(commands);
+        return commands.getDispatcherInternal();
+    }
+
+    private CommandContext<CommandSourceStack> createContext(String literal, AtomicInteger executions) {
+        CommandDispatcher<CommandSourceStack> dispatcher = new CommandDispatcher<>();
+        dispatcher.register(LiteralArgumentBuilder
+                .<CommandSourceStack>literal(literal)
+                .executes(ctx -> {
+                    executions.incrementAndGet();
+                    return 1;
+                }));
+
+        ParseResults<CommandSourceStack> parsed = dispatcher.parse(
+                literal,
+                CommandSourceStackMock.from(server.getConsoleSender())
+        );
+        return parsed.getContext().build(literal);
+    }
+}
