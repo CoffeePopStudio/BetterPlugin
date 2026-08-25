@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Predicate;
 
 /**
  * Internal implementation of {@link CommandBuilder}.
@@ -170,15 +171,17 @@ public class CommandBuilderImpl implements CommandBuilder {
                 .<CommandSourceStack>literal(name)
                 .executes(executorCommand);
 
+        Predicate<CommandSourceStack> requirement = source -> true;
         if (permission != null && !permission.isEmpty()) {
-            command.requires(source -> source.getSender().hasPermission(permission));
+            requirement = requirement.and(source -> source.getSender().hasPermission(permission));
         }
         if (playerOnly) {
-            command.requires(source -> source.getSender() instanceof Player);
+            requirement = requirement.and(source -> source.getSender() instanceof Player);
         }
         if (consoleOnly) {
-            command.requires(source -> source.getSender() instanceof ConsoleCommandSender);
+            requirement = requirement.and(source -> source.getSender() instanceof ConsoleCommandSender);
         }
+        command.requires(requirement);
 
         for (ArgumentBuilder<CommandSourceStack, ?> child : children) {
             command.then(child);
