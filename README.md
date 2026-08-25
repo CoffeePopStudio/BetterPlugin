@@ -53,7 +53,7 @@ Detailed docs:
 
 ## Dependency
 
-### JitPack (recommended)
+### JitPack
 
 Use the released tag directly from JitPack; no local build or publishing is required:
 
@@ -68,15 +68,6 @@ dependencies {
 ```
 
 Build status and available versions: <https://jitpack.io/#CoffeePopStudio/BetterPlugin/26.8.1-mc26.1.2>
-
-### Maven Local (alternative)
-
-```bash
-./gradlew publishToMavenLocal       # Linux / macOS
-gradlew.bat publishToMavenLocal     # Windows
-```
-
-Then reference `org.coffeepop:BetterPlugin:26.8.1-mc26.1.2` through `mavenLocal()` in the consuming project.
 
 ## Building and testing
 
