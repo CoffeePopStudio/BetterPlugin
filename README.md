@@ -1,24 +1,24 @@
 # BetterPlugin
 
-面向 Paper 服务器开发的插件框架，提供可复用的插件入口基类与命令注册能力。
+A plugin development framework for Paper servers, providing a reusable plugin entry base class and command registration API.
 
-> 📖 完整文档：**[BetterPlugin 文档站](https://CoffeePopStudio.github.io/BetterPlugin/)** · [本地构建](#构建文档站)
+> 📖 Full documentation: **[BetterPlugin docs](https://CoffeePopStudio.github.io/BetterPlugin/)** · [Building the docs site](#building-the-docs-site)
 
-## 定位
+## Overview
 
-BetterPlugin 是一个用于构建 Paper 插件的开源项目，目标是让插件开发者在编写服务端功能时复用通用基础设施，而不是重复实现命令注册等样板代码。
+BetterPlugin is an open-source framework for building Paper plugins. It lets plugin developers reuse common infrastructure instead of reimplementing command registration and other boilerplate.
 
-API 按能力模块组织：
+API modules:
 
-| 模块 | 包路径 | 说明 |
+| Module | Package | Description |
 | --- | --- | --- |
-| 插件基础 | `org.coffeepop.betterPlugin.api.plugin` | 插件入口基类（统一继承入口） |
-| 命令 API | `org.coffeepop.betterPlugin.api.command` | Brigadier 命令注册与执行，含补全、冷却与子命令（实验性 API） |
-| 异常 | `org.coffeepop.betterPlugin.api.exception` | 框架公共异常类型 |
+| Plugin base | `org.coffeepop.betterPlugin.api.plugin` | Plugin entry base class (unified inheritance entry) |
+| Command API | `org.coffeepop.betterPlugin.api.command` | Brigadier command registration and execution, including completion, cooldowns and subcommands (experimental API) |
+| Exceptions | `org.coffeepop.betterPlugin.api.exception` | Common framework exception types |
 
-## 快速开始
+## Quick start
 
-在自己插件中使用：
+In your own plugin:
 
 ```yaml
 name: MyPlugin
@@ -44,35 +44,55 @@ public class MyPlugin extends JavaPlugin {
 }
 ```
 
-详细文档：
+Detailed docs:
 
-- [快速开始](https://CoffeePopStudio.github.io/BetterPlugin/guide)
-- [命令 API](https://CoffeePopStudio.github.io/BetterPlugin/command/)
-- [插件基础](https://CoffeePopStudio.github.io/BetterPlugin/plugin)
-- [集成接入](https://CoffeePopStudio.github.io/BetterPlugin/guide/third-party)
+- [Quick start](https://CoffeePopStudio.github.io/BetterPlugin/guide)
+- [Command API](https://CoffeePopStudio.github.io/BetterPlugin/command/)
+- [Plugin base](https://CoffeePopStudio.github.io/BetterPlugin/plugin)
+- [Third-party integration](https://CoffeePopStudio.github.io/BetterPlugin/guide/third-party)
 
-## 构建与测试
+## Dependency
 
-```bash
-./gradlew build       # Linux / macOS：构建并运行全部测试
-gradlew.bat build     # Windows
+### JitPack (recommended)
+
+Use the released tag directly from JitPack; no local build or publishing is required:
+
+```kotlin
+repositories {
+    maven("https://jitpack.io")
+}
+
+dependencies {
+    compileOnly("com.github.CoffeePopStudio:BetterPlugin:26.8.1-mc26.1.2")
+}
 ```
 
-如需供第三方插件编译，可发布到 Maven Local（坐标 `org.coffeepop:BetterPlugin:26.8.1-mc26.1.2`）：
+Build status and available versions: <https://jitpack.io/#CoffeePopStudio/BetterPlugin/26.8.1-mc26.1.2>
+
+### Maven Local (alternative)
 
 ```bash
 ./gradlew publishToMavenLocal       # Linux / macOS
 gradlew.bat publishToMavenLocal     # Windows
 ```
 
-## 构建文档站
+Then reference `org.coffeepop:BetterPlugin:26.8.1-mc26.1.2` through `mavenLocal()` in the consuming project.
 
-文档站使用 [VitePress](https://vitepress.dev)。
+## Building and testing
+
+```bash
+./gradlew build       # Linux / macOS: build and run all tests
+gradlew.bat build     # Windows
+```
+
+## Building the docs site
+
+The docs site uses [VitePress](https://vitepress.dev).
 
 ```bash
 npm install
-npm run docs:dev    # 本地预览
-npm run docs:build  # 构建到 docs/.vitepress/dist
+npm run docs:dev    # local preview
+npm run docs:build  # build to docs/.vitepress/dist
 ```
 
-GitHub Actions 会在推送 `docs/` 相关文件到 `master` 时自动构建并发布到 GitHub Pages。
+GitHub Actions builds and publishes the docs to GitHub Pages when files under `docs/` are pushed to `master`.
