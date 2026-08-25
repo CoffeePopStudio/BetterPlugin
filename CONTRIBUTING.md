@@ -43,3 +43,20 @@ Rules:
 
 - Branch names use the format `<prefix>/<description>`, for example `feat/add-login`.
 - Do not open pull requests directly from `main` or `master`.
+
+## 5. Changelog
+
+Every released version must have an entry in the root `CHANGELOG.md`.
+
+- Write for users: explain what is new, what changed and what was fixed.
+- Use plain, human-readable language that anyone can understand.
+- Do **not** use programming or Java terminology, class names, method names, build internals or implementation details.
+
+Good example:
+
+> Commands now ask players to wait before using the same command again.
+
+Bad example:
+
+> Added `cooldown(Duration)` to `CommandBuilder` so `applyCooldown` wraps the executor command.
+
