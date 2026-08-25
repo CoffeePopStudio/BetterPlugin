@@ -2,6 +2,7 @@ import org.gradle.kotlin.dsl.testImplementation
 
 plugins {
     id("java-library")
+    `maven-publish`
     alias(libs.plugins.run.paper)
 }
 
@@ -20,6 +21,17 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+            groupId = project.group.toString()
+            artifactId = "BetterPlugin"
+            version = project.version.toString()
+        }
+    }
 }
 
 java {
