@@ -1,4 +1,6 @@
-import { defineConfig, withBase } from 'vitepress'
+import { defineConfig } from 'vitepress'
+
+const base = process.env.DOCS_BASE ?? '/'
 
 export default defineConfig({
   title: 'BetterPlugin',
@@ -6,12 +8,12 @@ export default defineConfig({
   lang: 'zh-CN',
   cleanUrls: true,
   lastUpdated: true,
-  base: process.env.DOCS_BASE ?? '/',
+  base,
   head: [
-    ['link', { rel: 'icon', type: 'image/svg+xml', href: withBase('/assets/logo.svg') }],
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: `${base}assets/logo.svg` }],
   ],
   themeConfig: {
-    logo: withBase('/assets/logo.svg'),
+    logo: `${base}assets/logo.svg`,
     search: {
       provider: 'local',
     },
