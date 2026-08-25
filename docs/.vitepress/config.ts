@@ -9,12 +9,17 @@ export default defineConfig({
   base: process.env.DOCS_BASE ?? '/',
   themeConfig: {
     logo: '/assets/logo.svg',
+    search: {
+      provider: 'local',
+    },
     nav: [
       { text: '首页', link: '/' },
       { text: '快速开始', link: '/guide' },
       { text: '命令 API', link: '/command/' },
       { text: '插件基础', link: '/plugin' },
+      { text: '异常', link: '/exception' },
       { text: '集成接入', link: '/guide/third-party' },
+      { text: '配置说明', link: '/guide/configuration' },
     ],
     sidebar: [
       {
@@ -23,6 +28,7 @@ export default defineConfig({
           { text: '快速开始', link: '/guide' },
           { text: '集成接入', link: '/guide/third-party' },
           { text: '配置说明', link: '/guide/configuration' },
+          { text: '构建与贡献', link: '/guide/building' },
         ],
       },
       {
@@ -51,9 +57,4 @@ export default defineConfig({
       copyright: 'Copyright © 2026 CoffeePopStudio',
     },
   },
-  head: [
-    ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
-    ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: '' }],
-    ['link', { href: 'https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;1,400&family=Noto+Sans+SC:wght@400;500;700&display=swap', rel: 'stylesheet' }],
-  ],
 })
