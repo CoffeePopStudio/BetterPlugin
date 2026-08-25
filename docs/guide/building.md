@@ -23,9 +23,13 @@ gradlew.bat test
 
 > `build` 任务已经包含测试，不需要先 `test` 再 `build`。
 
+## 获取 BetterPlugin
+
+第三方插件推荐直接通过 JitPack 使用已发布的 tag，无需本地构建或发布，见 [集成接入](/guide/third-party)。
+
 ## 发布到 Maven Local
 
-供第三方插件编译时使用（见 [集成接入](/guide/third-party)）：
+如需本地发布供第三方插件编译：
 
 ```bash
 ./gradlew publishToMavenLocal        # Linux / macOS
