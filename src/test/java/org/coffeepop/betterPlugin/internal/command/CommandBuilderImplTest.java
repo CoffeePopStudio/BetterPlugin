@@ -26,12 +26,14 @@ import org.mockbukkit.mockbukkit.entity.PlayerMock;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -454,6 +456,171 @@ class CommandBuilderImplTest {
         assertEquals(1, subResult);
         assertEquals(1, rootExecutions.get());
         assertEquals(1, subExecutions.get());
+    }
+
+    @Test
+    void registerCombinesPermissionAndPlayerOnly() throws Exception {
+        AtomicInteger executions = new AtomicInteger();
+
+        CommandBuilder builder = CommandBuilder.create()
+                .name("secure")
+                .permission("test.secure")
+                .playerOnly()
+                .executes((sender, command, label, args) -> {
+                    executions.incrementAndGet();
+                    return true;
+                });
+
+        CommandDispatcher<CommandSourceStack> dispatcher = registerAndGetDispatcher(builder);
+
+        PlayerMock player = server.addPlayer();
+        CommandSourceStack noPermission = CommandSourceStackMock.from(player);
+        assertThrows(CommandSyntaxException.class, () -> dispatcher.execute("secure", noPermission));
+        assertEquals(0, executions.get(), "command must not run without the required permission");
+
+        player.addAttachment(plugin, "test.secure", true);
+        CommandSourceStack withPermission = CommandSourceStackMock.from(player);
+        int result = assertDoesNotThrow(() -> dispatcher.execute("secure", withPermission));
+        assertEquals(1, result);
+        assertEquals(1, executions.get());
+
+        CommandSourceStack console = CommandSourceStackMock.from(server.getConsoleSender());
+        assertThrows(CommandSyntaxException.class, () -> dispatcher.execute("secure", console));
+        assertEquals(1, executions.get(), "playerOnly must still apply when permission is granted");
+    }
+
+    @Test
+    void registerPlayerOnlyAndConsoleOnlyRejectsEveryone() throws Exception {
+        AtomicInteger executions = new AtomicInteger();
+
+        CommandBuilder builder = CommandBuilder.create()
+                .name("nobody")
+                .playerOnly()
+                .consoleOnly()
+                .executes((sender, command, label, args) -> {
+                    executions.incrementAndGet();
+                    return true;
+                });
+
+        CommandDispatcher<CommandSourceStack> dispatcher = registerAndGetDispatcher(builder);
+
+        CommandSourceStack console = CommandSourceStackMock.from(server.getConsoleSender());
+        PlayerMock player = server.addPlayer();
+        CommandSourceStack playerSource = CommandSourceStackMock.from(player);
+
+        assertThrows(CommandSyntaxException.class, () -> dispatcher.execute("nobody", console));
+        assertThrows(CommandSyntaxException.class, () -> dispatcher.execute("nobody", playerSource));
+        assertEquals(0, executions.get(), "conflicting restrictions must block every sender");
+    }
+
+    @Test
+    void registerCooldownDoesNotApplyToConsole() throws Exception {
+        AtomicInteger executions = new AtomicInteger();
+
+        CommandBuilder builder = CommandBuilder.create()
+                .name("consolecooldown")
+                .cooldown(Duration.ofSeconds(60))
+                .executes((sender, command, label, args) -> {
+                    executions.incrementAndGet();
+                    return true;
+                });
+
+        CommandDispatcher<CommandSourceStack> dispatcher = registerAndGetDispatcher(builder);
+        CommandSourceStack source = CommandSourceStackMock.from(server.getConsoleSender());
+
+        int first = assertDoesNotThrow(() -> dispatcher.execute("consolecooldown", source));
+        int second = assertDoesNotThrow(() -> dispatcher.execute("consolecooldown", source));
+
+        assertEquals(1, first);
+        assertEquals(1, second);
+        assertEquals(2, executions.get(), "cooldown should only affect players");
+    }
+
+    @Test
+    void registerSubCommandsBypassRootCooldown() throws Exception {
+        AtomicInteger rootExecutions = new AtomicInteger();
+        AtomicInteger subExecutions = new AtomicInteger();
+
+        CommandBuilder builder = CommandBuilder.create()
+                .name("cooldownparent")
+                .cooldown(Duration.ofSeconds(60))
+                .executes((sender, command, label, args) -> {
+                    rootExecutions.incrementAndGet();
+                    return true;
+                })
+                .then(LiteralArgumentBuilder
+                        .<CommandSourceStack>literal("sub")
+                        .executes(ctx -> {
+                            subExecutions.incrementAndGet();
+                            return 1;
+                        }));
+
+        CommandDispatcher<CommandSourceStack> dispatcher = registerAndGetDispatcher(builder);
+        PlayerMock player = server.addPlayer();
+        CommandSourceStack source = CommandSourceStackMock.from(player);
+
+        int rootResult = assertDoesNotThrow(() -> dispatcher.execute("cooldownparent", source));
+        int firstSub = assertDoesNotThrow(() -> dispatcher.execute("cooldownparent sub", source));
+        int secondSub = assertDoesNotThrow(() -> dispatcher.execute("cooldownparent sub", source));
+
+        assertEquals(1, rootResult);
+        assertEquals(1, firstSub);
+        assertEquals(1, secondSub);
+        assertEquals(1, rootExecutions.get());
+        assertEquals(2, subExecutions.get(), "root cooldown must not block subcommands");
+    }
+
+    @Test
+    void registerThenIgnoresTabCompleter() throws Exception {
+        AtomicBoolean completerCalled = new AtomicBoolean();
+
+        CommandBuilder builder = CommandBuilder.create()
+                .name("withchild")
+                .executes((sender, command, label, args) -> true)
+                .tabCompleter((sender, command, label, args) -> {
+                    completerCalled.set(true);
+                    return List.of("apple");
+                })
+                .then(LiteralArgumentBuilder
+                        .<CommandSourceStack>literal("sub")
+                        .executes(ctx -> 1));
+
+        CommandDispatcher<CommandSourceStack> dispatcher = registerAndGetDispatcher(builder);
+        CommandSourceStack source = CommandSourceStackMock.from(server.getConsoleSender());
+        dispatcher.getCompletionSuggestions(dispatcher.parse("withchild ", source)).join();
+
+        assertFalse(completerCalled.get(), "tabCompleter must be ignored when child nodes are present");
+    }
+
+    @Test
+    void registerContextExecutorHasHighestPriority() throws Exception {
+        AtomicInteger contextExecutions = new AtomicInteger();
+        AtomicInteger rawExecutions = new AtomicInteger();
+        AtomicInteger bukkitExecutions = new AtomicInteger();
+        CommandContext<CommandSourceStack> context = createContext("priority", contextExecutions);
+        com.mojang.brigadier.Command<CommandSourceStack> rawCommand = ctx -> {
+            rawExecutions.incrementAndGet();
+            return 1;
+        };
+        CommandExecutor bukkitExecutor = (sender, command, label, args) -> {
+            bukkitExecutions.incrementAndGet();
+            return true;
+        };
+
+        CommandBuilder builder = CommandBuilder.create()
+                .name("priority")
+                .context(context)
+                .executes(rawCommand)
+                .executes(bukkitExecutor);
+
+        CommandDispatcher<CommandSourceStack> dispatcher = registerAndGetDispatcher(builder);
+        CommandSourceStack source = CommandSourceStackMock.from(server.getConsoleSender());
+        int result = assertDoesNotThrow(() -> dispatcher.execute("priority", source));
+
+        assertEquals(1, result);
+        assertEquals(1, contextExecutions.get());
+        assertEquals(0, rawExecutions.get());
+        assertEquals(0, bukkitExecutions.get());
     }
 
     private CommandDispatcher<CommandSourceStack> registerAndGetDispatcher(CommandBuilder builder) {
