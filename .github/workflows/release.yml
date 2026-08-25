@@ -32,7 +32,20 @@ jobs:
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
           echo "Version: ${VERSION}"
 
+      - name: Check if tag already exists
+        id: check
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if git rev-parse -q --verify "refs/tags/${VERSION}" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Tag ${VERSION} already exists; skipping release."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+            echo "Tag ${VERSION} does not exist; proceeding."
+          fi
+
       - name: Extract changelog entry
+        if: steps.check.outputs.exists == 'false'
         id: changelog
         run: |
           VERSION="${{ steps.version.outputs.version }}"
@@ -52,46 +65,45 @@ jobs:
           echo "--- Release notes for ${VERSION} ---"
           cat release-notes.md
 
-      - name: Check tag and release
-        id: check
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          VERSION="${{ steps.version.outputs.version }}"
-
-          if git rev-parse -q --verify "refs/tags/${VERSION}" >/dev/null 2>&1; then
-            echo "tag=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "tag=false" >> "$GITHUB_OUTPUT"
-          fi
-
-          if gh release view "${VERSION}" >/dev/null 2>&1; then
-            echo "release=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "release=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Set up JDK 25
-        if: steps.check.outputs.tag == 'false' || steps.check.outputs.release == 'false'
+        if: steps.check.outputs.exists == 'false'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '25'
 
       - name: Set up Gradle
-        if: steps.check.outputs.tag == 'false' || steps.check.outputs.release == 'false'
+        if: steps.check.outputs.exists == 'false'
         uses: gradle/actions/setup-gradle@v4
 
       - name: Make Gradle wrapper executable
-        if: steps.check.outputs.tag == 'false' || steps.check.outputs.release == 'false'
+        if: steps.check.outputs.exists == 'false'
         run: chmod +x gradlew
 
       - name: Build jar
-        if: steps.check.outputs.tag == 'false' || steps.check.outputs.release == 'false'
+        if: steps.check.outputs.exists == 'false'
         run: ./gradlew build --no-daemon
 
-      - name: Create tag if needed
-        if: steps.check.outputs.tag == 'false'
+      - name: Update README version
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          NEW="${{ steps.version.outputs.version }}"
+          OLD="$(git tag --sort=-version:refname | head -n1 || true)"
+
+          if [ -n "${OLD}" ] && [ "${OLD}" != "${NEW}" ]; then
+            perl -pi -e "s/\Q${OLD}\E/${NEW}/g" README.md
+          fi
+
+          if ! git diff --quiet -- README.md; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add README.md
+            git commit -m "docs: update README to ${NEW}"
+            git push origin master
+          fi
+
+      - name: Create and push tag
+        if: steps.check.outputs.exists == 'false'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -99,7 +111,7 @@ jobs:
           git push origin "refs/tags/${{ steps.version.outputs.version }}"
 
       - name: Publish GitHub release
-        if: steps.check.outputs.release == 'false'
+        if: steps.check.outputs.exists == 'false'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
