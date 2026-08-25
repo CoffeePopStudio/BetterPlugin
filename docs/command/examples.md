@@ -1,4 +1,4 @@
-# 示例
+# 命令示例
 
 以下示例均假设在 `JavaPlugin.onEnable()` 中调用，`this` 为当前插件实例。
 

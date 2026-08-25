@@ -2,17 +2,19 @@
 
 面向 Paper 服务器开发的插件框架，提供可复用的插件基础结构与命令注册能力。
 
-> 📖 完整文档：**[BetterPlugin 文档站](https://oneachina.github.io/BetterPlugin/)** · [本地构建](#构建文档站)
+> 📖 完整文档：**[BetterPlugin 文档站](https://CoffeePopStudio.github.io/BetterPlugin/)** · [本地构建](#构建文档站)
 
 ## 定位
 
 BetterPlugin 是一个用于构建 Paper 插件的开源项目，目标是让插件开发者在编写服务端功能时复用通用基础设施，而不是重复实现命令注册、生命周期等样板代码。
 
-当前包含：
+API 按能力模块组织：
 
-- **插件基础结构**：`PluginBase`、Bootstrap、Loader 等 Paper 插件入口
-- **命令 API**：基于 Brigadier 的命令注册 Builder，支持权限、别名、补全、冷却与子命令
-- **第三方依赖能力**：其他插件可以声明依赖 BetterPlugin，并复用其 API
+| 模块 | 包路径 | 说明 |
+| --- | --- | --- |
+| 插件基础 | `api.plugin` | 插件入口基类与生命周期基础能力 |
+| 命令 API | `api.command` | Brigadier 命令注册与执行，含补全、冷却与子命令 |
+| 异常 | `api.exception` | 框架公共异常类型 |
 
 ## 快速开始
 
@@ -41,7 +43,12 @@ public class MyPlugin extends JavaPlugin {
 }
 ```
 
-完整用法见 [文档站 - 指南](https://oneachina.github.io/BetterPlugin/guide) 与 [示例](https://oneachina.github.io/BetterPlugin/examples)。
+详细文档：
+
+- [快速开始](https://CoffeePopStudio.github.io/BetterPlugin/guide)
+- [命令 API](https://CoffeePopStudio.github.io/BetterPlugin/command/)
+- [插件基础](https://CoffeePopStudio.github.io/BetterPlugin/plugin)
+- [集成接入](https://CoffeePopStudio.github.io/BetterPlugin/guide/third-party)
 
 ## 构建与测试
 

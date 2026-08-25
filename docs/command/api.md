@@ -1,16 +1,12 @@
-# API 参考
+# 命令 API 参考
 
-本文档介绍 BetterPlugin 当前公开 API。目前以命令注册为主，后续版本会逐步扩展插件框架的其他部分。
-
-## CommandBuilder
-
-`CommandBuilder` 是命令注册的入口，位于 `org.coffeepop.betterPlugin.api.command.CommandBuilder`。
+命令 API 位于 `org.coffeepop.betterPlugin.api.command.CommandBuilder`。
 
 ```java
 import org.coffeepop.betterPlugin.api.command.CommandBuilder;
 ```
 
-### 工厂方法
+## 工厂方法
 
 ### `create()`
 
@@ -49,7 +45,7 @@ CommandBuilder builder = CommandBuilder.create(this);
 | `tabCompleter(TabCompleter)` | 配置 | 设置 Tab 补全 |
 | `register()` | 动作 | 校验并注册命令 |
 
-## 执行器（Executor）
+## 执行器
 
 ### `executes(CommandExecutor)`
 
@@ -140,8 +136,6 @@ CommandBuilder.create(this)
 
 ## 子命令
 
-### `.then(ArgumentBuilder)`
-
 ```java
 CommandBuilder.create(this)
         .name("parent")
@@ -151,10 +145,11 @@ CommandBuilder.create(this)
         .register();
 ```
 
-## CommandException
+## 校验规则
 
-当命令名无效或执行器未设置时抛出。
+调用 `register()` 时：
 
-```java
-import org.coffeepop.betterPlugin.api.exception.CommandException;
-```
+- 命令名不能为 `null` 或空字符串
+- 必须设置 `context`、`executes(Command)`、`executes(CommandExecutor)` 之一
+
+否则抛出 [CommandException](/exception)。

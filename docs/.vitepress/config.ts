@@ -2,7 +2,7 @@ import { defineConfig } from 'vitepress'
 
 export default defineConfig({
   title: 'BetterPlugin',
-  description: 'BetterPlugin - 一个基于 Paper Brigadier 的轻量命令框架',
+  description: 'BetterPlugin - 面向 Paper 服务器的插件开发框架',
   lang: 'zh-CN',
   cleanUrls: true,
   lastUpdated: true,
@@ -11,42 +11,44 @@ export default defineConfig({
     logo: '/assets/logo.svg',
     nav: [
       { text: '首页', link: '/' },
-      { text: '指南', link: '/guide' },
-      { text: 'API', link: '/api' },
-      { text: '示例', link: '/examples' },
+      { text: '快速开始', link: '/guide' },
+      { text: '命令 API', link: '/command/' },
+      { text: '插件基础', link: '/plugin' },
+      { text: '集成接入', link: '/guide/third-party' },
     ],
-    sidebar: {
-      '/guide': [
-        {
-          text: '指南',
-          items: [
-            { text: '快速开始', link: '/guide' },
-            { text: '集成到第三方插件', link: '/guide/third-party' },
-            { text: '配置说明', link: '/guide/configuration' },
-          ],
-        },
-      ],
-      '/api': [
-        {
-          text: 'API',
-          items: [
-            { text: 'CommandBuilder', link: '/api#commandbuilder' },
-            { text: 'CommandBuilder.create', link: '/api#create' },
-            { text: 'executes', link: '/api#executes' },
-            { text: 'tabCompleter', link: '/api#tabcompleter' },
-            { text: '命令限制', link: '/api#command-restrictions' },
-            { text: '冷却', link: '/api#cooldown' },
-            { text: '子命令', link: '/api#subcommands' },
-          ],
-        },
-      ],
-    },
+    sidebar: [
+      {
+        text: '开始',
+        items: [
+          { text: '快速开始', link: '/guide' },
+          { text: '集成接入', link: '/guide/third-party' },
+          { text: '配置说明', link: '/guide/configuration' },
+        ],
+      },
+      {
+        text: '模块',
+        items: [
+          { text: '插件基础', link: '/plugin' },
+          {
+            text: '命令 API',
+            collapsed: false,
+            items: [
+              { text: '概览', link: '/command/' },
+              { text: '快速上手', link: '/command/quick-start' },
+              { text: 'API 参考', link: '/command/api' },
+              { text: '示例', link: '/command/examples' },
+            ],
+          },
+          { text: '异常', link: '/exception' },
+        ],
+      },
+    ],
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/oneachina/BetterPlugin' },
+      { icon: 'github', link: 'https://github.com/CoffeePopStudio/BetterPlugin' },
     ],
     footer: {
-      message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2026 Neamyoo',
+      message: 'Powered by VitePress',
+      copyright: 'Copyright © 2026 CoffeePopStudio',
     },
   },
   head: [
