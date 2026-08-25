@@ -110,6 +110,9 @@ public interface CommandBuilder {
 
     /**
      * Restricts this command to players only.
+     * <p>
+     * Restrictions combine: a command restricted with both {@link #permission(String)}
+     * and this method only runs for players who also have the permission.
      *
      * @return this builder, for chaining
      */
@@ -117,6 +120,9 @@ public interface CommandBuilder {
 
     /**
      * Restricts this command to console senders only.
+     * <p>
+     * Restrictions combine: a command restricted with both {@link #permission(String)}
+     * and this method only runs for console senders who also have the permission.
      *
      * @return this builder, for chaining
      */
