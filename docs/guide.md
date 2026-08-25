@@ -19,11 +19,29 @@ BetterPlugin 是一个面向 Paper 服务器的插件开发框架，按能力领
 
 两者都可以正常使用 `CommandBuilder`，详见 [插件基础](/plugin)。
 
-## 在第三方插件中使用
+## 添加依赖
 
-BetterPlugin 的 API 可以直接被其他插件复用。使用方插件只需要声明运行期依赖（编译期依赖见 [集成接入](/guide/third-party)）：
+第三方插件通过 JitPack 使用已发布的 tag，无需本地构建。在使用方项目的 `build.gradle.kts` 中添加：
+
+```kotlin
+repositories {
+    maven("https://jitpack.io")
+}
+
+dependencies {
+    compileOnly("com.github.CoffeePopStudio:BetterPlugin:26.8.1-mc26.1.2")
+}
+```
+
+> 某个版本第一次被请求时 JitPack 会在云端构建，可能需要等待片刻；构建状态与版本列表见 [JitPack](https://jitpack.io/#CoffeePopStudio/BetterPlugin/26.8.1-mc26.1.2)。
+
+## 声明运行期依赖
+
+在 `plugin.yml` 中声明依赖，并把 BetterPlugin 的 jar 放到服务端的 `plugins/` 目录：
 
 <<< @/snippets/plugin.yml
+
+完整接入说明见 [集成接入](/guide/third-party)。
 
 ## 注册第一条命令
 
