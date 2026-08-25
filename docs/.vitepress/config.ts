@@ -1,4 +1,4 @@
-import { defineConfig } from 'vitepress'
+import { defineConfig, withBase } from 'vitepress'
 
 export default defineConfig({
   title: 'BetterPlugin',
@@ -7,8 +7,11 @@ export default defineConfig({
   cleanUrls: true,
   lastUpdated: true,
   base: process.env.DOCS_BASE ?? '/',
+  head: [
+    ['link', { rel: 'icon', type: 'image/svg+xml', href: withBase('/assets/logo.svg') }],
+  ],
   themeConfig: {
-    logo: '/assets/logo.svg',
+    logo: withBase('/assets/logo.svg'),
     search: {
       provider: 'local',
     },
