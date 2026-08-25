@@ -23,20 +23,12 @@ gradlew.bat test
 
 > `build` 任务已经包含测试，不需要先 `test` 再 `build`。
 
-## 获取 BetterPlugin
+## 发布新版本
 
-第三方插件推荐直接通过 JitPack 使用已发布的 tag，无需本地构建或发布，见 [集成接入](/guide/third-party)。
-
-## 发布到 Maven Local
-
-如需本地发布供第三方插件编译：
-
-```bash
-./gradlew publishToMavenLocal        # Linux / macOS
-gradlew.bat publishToMavenLocal      # Windows
-```
-
-发布坐标为 `org.coffeepop:BetterPlugin:26.8.1-mc26.1.2`，使用方通过 `mavenLocal()` 引用。
+1. 在 `gradle.properties` 中更新 `version`。
+2. 在根目录 `CHANGELOG.md` 顶部添加对应版本的条目；写法必须用普通用户可以读懂的语言，不使用编程或 Java 术语（见贡献规范）。
+3. 推送到 `master`，GitHub Actions 会自动构建、创建 tag 与 GitHub Release。
+4. JitPack 会在该 tag 首次被引用时构建产物，第三方插件直接引用即可（见 [集成接入](/guide/third-party)）。
 
 ## 文档站
 
