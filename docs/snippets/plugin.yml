@@ -1,0 +1,5 @@
+name: MyPlugin
+version: 1.0.0
+main: com.example.MyPlugin
+api-version: '26.1.2'
+depend: [BetterPlugin]
