@@ -85,7 +85,10 @@ public interface CommandBuilder {
     CommandBuilder description(String description);
 
     /**
-     * Sets the command usage message.
+     * Sets the usage metadata exposed through the lightweight {@link Command}
+     * adapter passed to executors and tab completers.
+     * <p>
+     * This value is not used by Paper's Brigadier registration itself.
      *
      * @param usage the usage string, e.g. {@code "/cmd <player>"}
      * @return this builder, for chaining
@@ -93,7 +96,12 @@ public interface CommandBuilder {
     CommandBuilder usage(String usage);
 
     /**
-     * Sets the message shown when a sender lacks the required permission.
+     * Sets the permission-message metadata exposed through the lightweight
+     * {@link Command} adapter passed to executors and tab completers.
+     * <p>
+     * Permission enforcement is handled by Brigadier's {@code requires}
+     * predicate; this value is not shown automatically when a sender lacks
+     * the required permission.
      *
      * @param permissionMessage the permission message
      * @return this builder, for chaining
@@ -115,7 +123,11 @@ public interface CommandBuilder {
     CommandBuilder consoleOnly();
 
     /**
-     * Adds a per-player cooldown to this command.
+     * Adds a per-player cooldown to the root execution path of this command.
+     * <p>
+     * Subcommands added via {@link #then(ArgumentBuilder)} use their own
+     * executors and are not affected by this cooldown. When a player is
+     * blocked, the executor does not run and a fixed English message is sent.
      *
      * @param cooldown the cooldown duration
      * @return this builder, for chaining
@@ -124,6 +136,9 @@ public interface CommandBuilder {
 
     /**
      * Adds a child node to the command, enabling subcommands or arguments.
+     * <p>
+     * When child nodes are present, {@link #tabCompleter(TabCompleter)} is
+     * not applied; use Brigadier node APIs for completion instead.
      *
      * @param child the child Brigadier node builder
      * @return this builder, for chaining
@@ -160,6 +175,10 @@ public interface CommandBuilder {
 
     /**
      * Sets a Bukkit {@link TabCompleter} used for argument tab completion.
+     * <p>
+     * This completer is only used when no child nodes are registered via
+     * {@link #then(ArgumentBuilder)}. For subcommands, provide suggestions
+     * with Brigadier's own node APIs.
      *
      * @param completer the tab completer, or {@code null} for no custom completion
      * @return this builder, for chaining
@@ -167,7 +186,13 @@ public interface CommandBuilder {
     CommandBuilder tabCompleter(TabCompleter completer);
 
     /**
-     * Validates the builder and registers the command with the plugin's command registry.
+     * Validates the builder and queues the command for registration with the
+     * plugin's command registry.
+     * <p>
+     * Actual registration happens when Paper fires the {@code COMMANDS}
+     * lifecycle event, so this method must be called before that event
+     * (typically during {@code onEnable()}). Calls made after the event has
+     * fired will not take effect.
      *
      * @throws org.coffeepop.betterPlugin.api.exception.CommandException if the command name is
      *                                                                  {@code null}/{@code empty}, or if neither
