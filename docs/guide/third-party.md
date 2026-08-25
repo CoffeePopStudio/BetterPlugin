@@ -8,7 +8,23 @@ BetterPlugin 可作为运行时依赖被其他插件复用。通过 `create(plug
 
 代码里用到的 `org.coffeepop.betterPlugin.api.command.CommandBuilder` 来自 BetterPlugin 的 jar，需要先让它进入编译 classpath。
 
-### 方式 A：发布到 Maven Local（推荐）
+### 方式 A：通过 JitPack 获取（推荐）
+
+直接使用已发布的 tag，无需本地构建或发布。某个版本第一次被请求时 JitPack 会在云端构建，可能需要等待片刻。
+
+```kotlin
+repositories {
+    maven("https://jitpack.io")
+}
+
+dependencies {
+    compileOnly("com.github.CoffeePopStudio:BetterPlugin:26.8.1-mc26.1.2")
+}
+```
+
+构建状态与版本列表见 [JitPack](https://jitpack.io/#CoffeePopStudio/BetterPlugin/26.8.1-mc26.1.2)。
+
+### 方式 B：发布到 Maven Local
 
 先在 BetterPlugin 项目内发布一次：
 
@@ -29,7 +45,7 @@ dependencies {
 }
 ```
 
-### 方式 B：直接引用本地 jar
+### 方式 C：直接引用本地 jar
 
 先在 BetterPlugin 项目内构建，再复制产物：
 
@@ -52,7 +68,8 @@ dependencies {
 
 <<< @/snippets/plugin.yml
 
-同时把 BetterPlugin 的 jar 放到服务端的 `plugins/` 目录；`depend` 中的名称需与服务端实际加载的插件名 `BetterPlugin` 一致。
+- 运行期：把 BetterPlugin 的 jar 放到服务端的 `plugins/` 目录（JitPack 产物 jar 同样可用）
+- 如果从 JitPack 获取的 jar 文件名带构建后缀，放进 `plugins/` 前重命名为 `BetterPlugin.jar` 即可
 
 > `plugin.yml` 的 `depend` 只负责运行期加载顺序；编译仍需第 1 步的依赖。
 
