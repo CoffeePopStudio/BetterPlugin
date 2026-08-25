@@ -57,7 +57,7 @@ public class MyPlugin extends JavaPlugin {
 }
 ```
 
-入口类也可以继承 `PluginBase`，两种方式都可用，见 [插件基础](/plugin)。
+入口类也可以继承 `PluginBase`，两种方式都可用，见 [插件基础](/zh/plugin)。
 
 ## 4. 指定插件
 
@@ -105,4 +105,4 @@ CommandBuilder.create(this)
         .register();
 ```
 
-更多能力与限制见 [命令 API 参考](/command/api)。
+更多能力与限制见 [命令 API 参考](/zh/command/api)。

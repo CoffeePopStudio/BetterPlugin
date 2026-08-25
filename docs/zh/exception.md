@@ -48,5 +48,5 @@ CommandBuilder.create()
 
 ## 相关页面
 
-- [命令 API 参考](/command/api)
-- [命令 API 示例](/command/examples)
+- [命令 API 参考](/zh/command/api)
+- [命令 API 示例](/zh/command/examples)

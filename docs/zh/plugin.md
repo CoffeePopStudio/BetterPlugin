@@ -47,6 +47,6 @@ public final class MyPlugin extends PluginBase {
 
 ## 相关页面
 
-- [快速开始](/guide)
-- [第三方插件接入](/guide/third-party)
-- [命令 API 概览](/command/)
+- [快速开始](/zh/guide)
+- [第三方插件接入](/zh/guide/third-party)
+- [命令 API 概览](/zh/command/)

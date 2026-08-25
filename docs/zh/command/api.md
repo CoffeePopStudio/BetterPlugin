@@ -146,7 +146,7 @@ CommandBuilder.create(this)
         .register();
 ```
 
-> 限制条件会互相覆盖：多次设置时以后设置的为准（例如先 `permission(...)` 再 `playerOnly()`，权限检查会被覆盖）。因此不要同时设置 `playerOnly()` 与 `consoleOnly()`，也不要将它们与 `permission(...)` 混用。
+> 限制条件会叠加：同时设置多个条件时，发送者必须全部满足。例如 `permission(...)` 加 `playerOnly()` 表示“有权限的玩家”。`playerOnly()` 与 `consoleOnly()` 不要同时设置，否则所有发送者都被拒绝。
 
 ## 冷却
 
@@ -181,7 +181,7 @@ CommandBuilder.create(this)
 - 命令名不能为 `null` 或空字符串
 - 必须设置 `context`、`executes(Command)`、`executes(CommandExecutor)` 之一
 
-否则抛出 [CommandException](/exception)。
+否则抛出 [CommandException](/zh/exception)。
 
 ## 已知限制
 

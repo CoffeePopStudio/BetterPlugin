@@ -8,30 +8,30 @@ hero:
   actions:
     - theme: brand
       text: 快速开始
-      link: /guide
+      link: /zh/guide
 ---
 
 ## 特性 {#features}
 
 <div class="module-grid">
-  <div class="module-card">
+  <a class="module-card" href="/zh/plugin">
     <strong>统一插件入口</strong>
     <span><code>PluginBase</code> 提供 <code>JavaPlugin</code> 的统一继承入口，直接继承 <code>JavaPlugin</code> 同样可用。</span>
-  </div>
-  <div class="module-card">
+  </a>
+  <a class="module-card" href="/zh/guide">
     <strong>模块化 API</strong>
     <span>按能力领域划分 API 模块，各模块可独立使用、自由组合。</span>
-  </div>
-  <div class="module-card">
+  </a>
+  <a class="module-card" href="/zh/command/">
     <strong>命令注册</strong>
     <span>基于 Paper Brigadier 的 Fluent API，支持权限、别名、补全、冷却与子命令（实验性）。</span>
-  </div>
-  <div class="module-card">
+  </a>
+  <a class="module-card" href="/zh/exception">
     <strong>公共异常</strong>
     <span>统一的框架异常类型，便于调用方处理。</span>
-  </div>
-  <div class="module-card">
+  </a>
+  <a class="module-card" href="/zh/guide/third-party">
     <strong>第三方复用</strong>
     <span>可作为运行时依赖被其他插件引用，命令归属调用方插件。</span>
-  </div>
+  </a>
 </div>

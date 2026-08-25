@@ -47,7 +47,7 @@ CommandBuilder.create(this)
         .register();
 ```
 
-> `.usage()` 与 `.permissionMessage()` 目前只是挂到回调参数 `command` 上的元数据，不会作用于 Brigadier 注册结果，详见 [API 参考](/command/api)。
+> `.usage()` 与 `.permissionMessage()` 目前只是挂到回调参数 `command` 上的元数据，不会作用于 Brigadier 注册结果，详见 [API 参考](/zh/command/api)。
 
 ## 补全、限定与冷却
 
@@ -92,4 +92,4 @@ CommandBuilder.create(this)
 
 > 注意：添加 `.then(...)` 子节点后，`.tabCompleter(...)` 会被忽略；父命令的 `.cooldown(...)` 也只作用于父命令执行路径，子节点自身不受影响。
 
-更多配置见 [API 参考](/command/api)，完整用例见 [示例](/command/examples)。
+更多配置见 [API 参考](/zh/command/api)，完整用例见 [示例](/zh/command/examples)。

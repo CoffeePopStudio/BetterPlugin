@@ -37,6 +37,6 @@ Paper 命令系统
 
 ## 快速导航
 
-- [快速上手](/command/quick-start)
-- [API 参考](/command/api)
-- [示例](/command/examples)
+- [快速上手](/zh/command/quick-start)
+- [API 参考](/zh/command/api)
+- [示例](/zh/command/examples)

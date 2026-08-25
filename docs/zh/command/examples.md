@@ -87,7 +87,7 @@ CommandBuilder.create(this)
         .register();
 ```
 
-> `playerOnly()` 与 `consoleOnly()` 不要在同一条命令上同时设置（限制条件会互相覆盖，以后设置的为准）。
+> `playerOnly()` 与 `consoleOnly()` 不要在同一条命令上同时设置（限制条件会叠加，两者同时生效会拒绝所有发送者）。
 
 ## 冷却
 
@@ -102,7 +102,7 @@ CommandBuilder.create(this)
         .register();
 ```
 
-冷却仅对玩家生效、只作用于根执行路径，且提示文案暂为固定英文，详见 [API 参考](/command/api)。
+冷却仅对玩家生效、只作用于根执行路径，且提示文案暂为固定英文，详见 [API 参考](/zh/command/api)。
 
 ## 子命令
 
