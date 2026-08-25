@@ -1,0 +1,6 @@
+jdk:
+  - openjdk25
+
+install:
+  - chmod +x gradlew
+  - ./gradlew publishToMavenLocal
