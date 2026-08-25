@@ -1,0 +1,109 @@
+name: Release
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'gradle.properties'
+      - 'CHANGELOG.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Read version
+        id: version
+        run: |
+          VERSION="$(sed -n 's/^version=//p' gradle.properties | tr -d '[:space:]')"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Version: ${VERSION}"
+
+      - name: Extract changelog entry
+        id: changelog
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          awk -v ver="${VERSION}" '
+            /^## / {
+              if (found) exit
+              if ($0 ~ "^## " ver "( - .*)?[[:space:]]*$") { found = 1; next }
+            }
+            found { print }
+          ' CHANGELOG.md > release-notes.md
+
+          if [ ! -s release-notes.md ]; then
+            echo "::error::No changelog entry found for ${VERSION} in CHANGELOG.md"
+            exit 1
+          fi
+
+          echo "--- Release notes for ${VERSION} ---"
+          cat release-notes.md
+
+      - name: Check tag and release
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+
+          if git rev-parse -q --verify "refs/tags/${VERSION}" >/dev/null 2>&1; then
+            echo "tag=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=false" >> "$GITHUB_OUTPUT"
+          fi
+
+          if gh release view "${VERSION}" >/dev/null 2>&1; then
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up JDK 25
+        if: steps.check.outputs.tag == 'false' || steps.check.outputs.release == 'false'
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - name: Set up Gradle
+        if: steps.check.outputs.tag == 'false' || steps.check.outputs.release == 'false'
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make Gradle wrapper executable
+        if: steps.check.outputs.tag == 'false' || steps.check.outputs.release == 'false'
+        run: chmod +x gradlew
+
+      - name: Build jar
+        if: steps.check.outputs.tag == 'false' || steps.check.outputs.release == 'false'
+        run: ./gradlew build --no-daemon
+
+      - name: Create tag if needed
+        if: steps.check.outputs.tag == 'false'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag "${{ steps.version.outputs.version }}"
+          git push origin "refs/tags/${{ steps.version.outputs.version }}"
+
+      - name: Publish GitHub release
+        if: steps.check.outputs.release == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ steps.version.outputs.version }}" \
+            --title "${{ steps.version.outputs.version }}" \
+            --notes-file release-notes.md \
+            "build/libs/BetterPlugin-${{ steps.version.outputs.version }}.jar"
