@@ -1,0 +1,10 @@
+name: BetterPlugin
+version: '${version}'
+
+main: org.coffeepop.betterPlugin.bootstrap.BetterPlugin
+bootstrapper: org.coffeepop.betterPlugin.bootstrap.BetterPluginBootstrap
+loader: org.coffeepop.betterPlugin.bootstrap.BetterPluginLoader
+api-version: '26.1.2'
+load: STARTUP
+
+authors: [ Neamyoo ]
