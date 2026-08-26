@@ -9,6 +9,7 @@ import org.mockbukkit.mockbukkit.ServerMock;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PluginBaseTest {
@@ -24,6 +25,10 @@ class PluginBaseTest {
         @Override
         protected void onPluginDisable() {
             events.add("disable");
+        }
+
+        java.util.logging.Logger exposedLog() {
+            return log();
         }
     }
 
@@ -49,5 +54,10 @@ class PluginBaseTest {
         server.getPluginManager().disablePlugin(plugin);
 
         assertTrue(plugin.events.contains("disable"), "onPluginDisable should run when the plugin is disabled");
+    }
+
+    @Test
+    void logReturnsPluginLogger() {
+        assertEquals(plugin.getLogger(), plugin.exposedLog(), "log() should return the plugin's own logger");
     }
 }

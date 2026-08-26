@@ -34,4 +34,12 @@ public abstract class PluginBase extends JavaPlugin {
      */
     protected void onPluginDisable() {
     }
+
+    /**
+     * Returns the plugin's logger. Equivalent to {@link #getLogger()}, kept
+     * as a short alias for convenience.
+     */
+    protected java.util.logging.Logger log() {
+        return getLogger();
+    }
 }
