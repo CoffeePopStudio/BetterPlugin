@@ -1,10 +1,12 @@
 package org.coffeepop.betterPlugin.internal.command;
 
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.command.CommandExecutor;
@@ -50,6 +52,7 @@ public class CommandBuilderImpl implements CommandBuilder {
     private Command<CommandSourceStack> command;
     private CommandExecutor executor;
     private TabCompleter completer;
+    private boolean registered;
 
     @Override
     public CommandBuilderImpl name(String name) {
@@ -143,11 +146,27 @@ public class CommandBuilderImpl implements CommandBuilder {
 
     @Override
     public void register() {
-        if (name == null || name.isEmpty()) {
-            throw new CommandException("Command name cannot be null or empty");
+        if (registered) {
+            throw new CommandException("This builder has already been registered; create a new CommandBuilder for each command");
+        }
+        if (name == null || name.isBlank()) {
+            throw new CommandException("Command name cannot be null or blank");
+        }
+        if (aliases != null) {
+            for (String alias : aliases) {
+                if (alias == null || alias.isBlank()) {
+                    throw new CommandException("Command alias cannot be null or blank");
+                }
+                if (name.equals(alias)) {
+                    throw new CommandException("Command alias cannot be the same as the command name");
+                }
+            }
         }
         if (context == null && command == null && executor == null) {
             throw new CommandException("Command executor cannot be null; set context(...), executes(Command) or executes(CommandExecutor)");
+        }
+        if (context != null && context.getCommand() == null) {
+            throw new CommandException("Command context does not contain an executor; provide a context built from a node with executes(...)");
         }
 
         List<String> aliasesList = aliases == null ? List.of() : Arrays.asList(aliases);
@@ -193,17 +212,13 @@ public class CommandBuilderImpl implements CommandBuilder {
 
             if (completer != null) {
                 argsBuilder = argsBuilder.suggests((context, suggestionsBuilder) -> {
-                    String[] parts = suggestionsBuilder.getInput().split(" ", -1);
-                    String alias = parts.length > 0 ? parts[0] : name;
-                    String[] args = parts.length > 1
-                            ? Arrays.copyOfRange(parts, 1, parts.length)
-                            : new String[0];
+                    ParsedInput parsed = parseInput(suggestionsBuilder.getInput());
 
                     List<String> completions = completer.onTabComplete(
                             context.getSource().getSender(),
                             commandAdapter,
-                            alias,
-                            args
+                            parsed.label(),
+                            parsed.args()
                     );
                     if (completions != null) {
                         for (String completion : completions) {
@@ -224,6 +239,7 @@ public class CommandBuilderImpl implements CommandBuilder {
                 owner,
                 description
         );
+        registered = true;
     }
 
     private Command<CommandSourceStack> resolveExecutor(BukkitCommandAdapter commandAdapter) {
@@ -234,30 +250,67 @@ public class CommandBuilderImpl implements CommandBuilder {
             return command;
         }
         return ctx -> {
-            String[] parts = ctx.getInput().split(" ", -1);
+            ParsedInput parsed = parseInput(ctx.getInput());
+
+            boolean result = executor.onCommand(ctx.getSource().getSender(), commandAdapter, parsed.label(), parsed.args());
+            return result ? Command.SINGLE_SUCCESS : 0;
+        };
+    }
+
+    private ParsedInput parseInput(String input) {
+        try {
+            StringReader reader = new StringReader(input);
+            List<String> parts = new ArrayList<>();
+            while (reader.canRead()) {
+                reader.skipWhitespace();
+                if (!reader.canRead()) {
+                    break;
+                }
+                parts.add(reader.readString());
+            }
+            String[] all = parts.toArray(String[]::new);
+            String label = all.length > 0 ? all[0] : name;
+            String[] args = all.length > 1
+                    ? Arrays.copyOfRange(all, 1, all.length)
+                    : new String[0];
+            return new ParsedInput(label, args);
+        } catch (CommandSyntaxException e) {
+            String[] parts = input.split(" ", -1);
             String label = parts.length > 0 ? parts[0] : name;
             String[] args = parts.length > 1
                     ? Arrays.copyOfRange(parts, 1, parts.length)
                     : new String[0];
-
-            boolean result = executor.onCommand(ctx.getSource().getSender(), commandAdapter, label, args);
-            return result ? Command.SINGLE_SUCCESS : 0;
-        };
+            return new ParsedInput(label, args);
+        }
     }
 
     private Command<CommandSourceStack> applyCooldown(Command<CommandSourceStack> delegate) {
         return ctx -> {
             CommandSender sender = ctx.getSource().getSender();
             if (sender instanceof Player player) {
-                long now = System.currentTimeMillis();
-                Long until = cooldowns.get(player.getUniqueId());
-                if (until != null && until > now) {
+                long now = System.nanoTime();
+                if (isCoolingDown(player.getUniqueId(), now)) {
                     player.sendPlainMessage("Please wait before using this command again.");
                     return 0;
                 }
-                cooldowns.put(player.getUniqueId(), now + cooldown.toMillis());
+                cooldowns.put(player.getUniqueId(), now + cooldown.toNanos());
             }
             return delegate.run(ctx);
         };
+    }
+
+    private boolean isCoolingDown(UUID uuid, long now) {
+        Long until = cooldowns.get(uuid);
+        if (until == null) {
+            return false;
+        }
+        if (until <= now) {
+            cooldowns.remove(uuid);
+            return false;
+        }
+        return true;
+    }
+
+    private record ParsedInput(String label, String[] args) {
     }
 }

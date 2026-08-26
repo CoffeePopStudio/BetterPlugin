@@ -1,7 +1,3 @@
-/**
- * @Author: oneachina
- * @link: github.com/oneachina
- */
 package org.coffeepop.betterPlugin.api.exception;
 
 import org.jetbrains.annotations.ApiStatus;

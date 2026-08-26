@@ -96,6 +96,47 @@ class CommandBuilderImplTest {
     }
 
     @Test
+    void registerRejectsBlankName() {
+        CommandBuilderImpl builder = new CommandBuilderImpl();
+        builder.name("   ");
+        assertThrows(CommandException.class, builder::register);
+    }
+
+    @Test
+    void registerRejectsBlankAlias() {
+        CommandBuilderImpl builder = new CommandBuilderImpl();
+        builder.name("cmd");
+        builder.aliases("   ");
+        builder.executes(ctx -> 1);
+        assertThrows(CommandException.class, builder::register);
+    }
+
+    @Test
+    void registerRejectsDuplicateRegistration() {
+        CommandBuilderImpl builder = new CommandBuilderImpl();
+        builder.name("cmd");
+        builder.executes(ctx -> 1);
+        builder.register();
+        assertThrows(CommandException.class, builder::register);
+    }
+
+    @Test
+    void registerRejectsContextWithoutExecutor() {
+        CommandDispatcher<CommandSourceStack> dispatcher = new CommandDispatcher<>();
+        dispatcher.register(LiteralArgumentBuilder.<CommandSourceStack>literal("nofunc"));
+        ParseResults<CommandSourceStack> parsed = dispatcher.parse(
+                "nofunc",
+                CommandSourceStackMock.from(server.getConsoleSender())
+        );
+        CommandContext<CommandSourceStack> context = parsed.getContext().build("nofunc");
+
+        CommandBuilderImpl builder = new CommandBuilderImpl();
+        builder.name("cmd");
+        builder.context(context);
+        assertThrows(CommandException.class, builder::register);
+    }
+
+    @Test
     void registerAddsCommandToRegistryAndExecutesIt() throws Exception {
         AtomicInteger executions = new AtomicInteger();
         CommandContext<CommandSourceStack> context = createContext("greet", executions);
@@ -225,6 +266,11 @@ class CommandBuilderImplTest {
         assertEquals(1, argsResult);
         assertEquals(2, executions.get());
         assertArrayEquals(new String[]{"one", "two"}, seenArgs.get());
+
+        int quotedResult = assertDoesNotThrow(() -> dispatcher.execute("exec \"one two\"", source));
+        assertEquals(1, quotedResult);
+        assertEquals(3, executions.get());
+        assertArrayEquals(new String[]{"one two"}, seenArgs.get(), "quoted arguments should arrive as a single argument");
     }
 
     @Test
