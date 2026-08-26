@@ -30,6 +30,30 @@ class PluginBaseTest {
         java.util.logging.Logger exposedLog() {
             return log();
         }
+
+        String exposedConfigString(String path, String defaultValue) {
+            return configString(path, defaultValue);
+        }
+
+        int exposedConfigInt(String path, int defaultValue) {
+            return configInt(path, defaultValue);
+        }
+
+        long exposedConfigLong(String path, long defaultValue) {
+            return configLong(path, defaultValue);
+        }
+
+        double exposedConfigDouble(String path, double defaultValue) {
+            return configDouble(path, defaultValue);
+        }
+
+        boolean exposedConfigBoolean(String path, boolean defaultValue) {
+            return configBoolean(path, defaultValue);
+        }
+
+        List<String> exposedConfigStringList(String path) {
+            return configStringList(path);
+        }
     }
 
     private ServerMock server;
@@ -59,5 +83,32 @@ class PluginBaseTest {
     @Test
     void logReturnsPluginLogger() {
         assertEquals(plugin.getLogger(), plugin.exposedLog(), "log() should return the plugin's own logger");
+    }
+
+    @Test
+    void configHelpersReadValues() {
+        var config = plugin.getConfig();
+        config.set("text", "hello");
+        config.set("number", 42);
+        config.set("ratio", 1.5);
+        config.set("flag", true);
+        config.set("list", List.of("a", "b"));
+
+        assertEquals("hello", plugin.exposedConfigString("text", "dflt"));
+        assertEquals(42, plugin.exposedConfigInt("number", 0));
+        assertEquals(42L, plugin.exposedConfigLong("number", 0L));
+        assertEquals(1.5, plugin.exposedConfigDouble("ratio", 0.0));
+        assertEquals(true, plugin.exposedConfigBoolean("flag", false));
+        assertEquals(List.of("a", "b"), plugin.exposedConfigStringList("list"));
+    }
+
+    @Test
+    void configHelpersFallBackToDefaults() {
+        assertEquals("dflt", plugin.exposedConfigString("missing", "dflt"));
+        assertEquals(7, plugin.exposedConfigInt("missing", 7));
+        assertEquals(7L, plugin.exposedConfigLong("missing", 7L));
+        assertEquals(2.5, plugin.exposedConfigDouble("missing", 2.5));
+        assertEquals(true, plugin.exposedConfigBoolean("missing", true));
+        assertEquals(List.of(), plugin.exposedConfigStringList("missing"));
     }
 }

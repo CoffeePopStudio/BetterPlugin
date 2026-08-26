@@ -42,4 +42,61 @@ public abstract class PluginBase extends JavaPlugin {
     protected java.util.logging.Logger log() {
         return getLogger();
     }
+
+    /**
+     * Reads a {@code String} from the plugin config, falling back to
+     * {@code defaultValue} when the path is not set.
+     */
+    protected String configString(String path, String defaultValue) {
+        var config = getConfig();
+        return config.isSet(path) ? config.getString(path, defaultValue) : defaultValue;
+    }
+
+    /**
+     * Reads an {@code int} from the plugin config, falling back to
+     * {@code defaultValue} when the path is not set.
+     */
+    protected int configInt(String path, int defaultValue) {
+        var config = getConfig();
+        return config.isSet(path) ? config.getInt(path, defaultValue) : defaultValue;
+    }
+
+    /**
+     * Reads a {@code long} from the plugin config, falling back to
+     * {@code defaultValue} when the path is not set.
+     */
+    protected long configLong(String path, long defaultValue) {
+        var config = getConfig();
+        return config.isSet(path) ? config.getLong(path, defaultValue) : defaultValue;
+    }
+
+    /**
+     * Reads a {@code double} from the plugin config, falling back to
+     * {@code defaultValue} when the path is not set.
+     */
+    protected double configDouble(String path, double defaultValue) {
+        var config = getConfig();
+        return config.isSet(path) ? config.getDouble(path, defaultValue) : defaultValue;
+    }
+
+    /**
+     * Reads a {@code boolean} from the plugin config, falling back to
+     * {@code defaultValue} when the path is not set.
+     */
+    protected boolean configBoolean(String path, boolean defaultValue) {
+        var config = getConfig();
+        return config.isSet(path) ? config.getBoolean(path, defaultValue) : defaultValue;
+    }
+
+    /**
+     * Reads a string list from the plugin config. Returns an empty list when
+     * the path is not set.
+     */
+    protected java.util.List<String> configStringList(String path) {
+        var config = getConfig();
+        if (!config.isSet(path)) {
+            return java.util.List.of();
+        }
+        return config.getStringList(path);
+    }
 }
