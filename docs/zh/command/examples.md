@@ -1,6 +1,6 @@
 # 命令示例
 
-以下示例均假设在 `JavaPlugin.onEnable()` 中调用，`this` 为当前插件实例。
+以下示例均假设在 `JavaPlugin.onEnable()` 中调用，`this` 是当前插件实例。
 
 ::: warning 实验性 API
 `CommandBuilder` 与 `CommandException` 目前是实验性 API，接口可能随版本调整。
@@ -102,11 +102,11 @@ CommandBuilder.create(this)
         .register();
 ```
 
-冷却仅对玩家生效、只作用于根执行路径，且提示文案暂为固定英文，详见 [API 参考](/zh/command/api)。
+冷却仅对玩家生效、只作用于根执行路径，提示文案暂为固定英文，详见 [API 参考](/zh/command/api)。
 
 ## 子命令
 
-子命令必须保留父命令执行器，否则 `register()` 抛出 `CommandException`：
+子命令必须保留父命令执行器，否则 `register()` 会抛出 `CommandException`：
 
 ```java
 CommandBuilder.create(this)

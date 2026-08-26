@@ -1,9 +1,9 @@
 # 异常
 
-对应 API 包：`org.coffeepop.betterPlugin.api.exception`。
+对应包：`org.coffeepop.betterPlugin.api.exception`。
 
-::: warning 实验性 API
-`CommandBuilder` 与 `CommandException` 目前均为实验性 API（`@ApiStatus.Experimental`），接口可能随版本调整。
+::: warning 实验性功能
+`CommandBuilder` 与 `CommandException` 目前都是实验性功能，接口可能随版本调整。
 :::
 
 ## CommandException
@@ -23,11 +23,11 @@ public class CommandException extends RuntimeException {
 调用 `CommandBuilder.register()` 时：
 
 - 命令名为 `null` 或空字符串
-- 未设置任何执行器（`context` / `executes(Command)` / `executes(CommandExecutor)`）
+- 没有设置任何执行器（`context` / `executes(Command)` / `executes(CommandExecutor)`）
 
 ### 示例
 
-触发异常的情况：
+下面这种情况会触发异常：
 
 ```java
 CommandBuilder.create()
@@ -35,7 +35,7 @@ CommandBuilder.create()
         .register(); // 没有执行器，抛出 CommandException
 ```
 
-正确写法是补上执行器：
+补上执行器就正确了：
 
 ```java
 CommandBuilder.create()
@@ -44,7 +44,7 @@ CommandBuilder.create()
         .register();
 ```
 
-> 如需捕获该异常，请记录日志并处理；避免在生产代码中直接 `printStackTrace()`。
+> 如需捕获该异常，请记录日志再处理；避免在生产代码中直接 `printStackTrace()`。
 
 ## 相关页面
 

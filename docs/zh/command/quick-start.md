@@ -1,13 +1,13 @@
-# 命令 API 快速上手
+# 命令快速上手
 
-::: warning 实验性 API
-`CommandBuilder` 与 `CommandException` 目前是实验性 API，接口可能随版本调整。
+::: warning 实验性功能
+`CommandBuilder` 与 `CommandException` 目前是实验性功能，接口可能随版本调整。
 :::
 
 ## 前提
 
-- 插件声明运行期依赖 BetterPlugin（`plugin.yml` 中的 `depend`）
-- 在 `onEnable()` 中调用，`this` 为当前插件实例（`JavaPlugin` 或 `PluginBase` 均可）
+- 插件在 `plugin.yml` 的 `depend` 里声明运行期依赖 BetterPlugin
+- 在 `onEnable()` 中调用，`this` 是当前插件实例（`JavaPlugin` 或 `PluginBase` 均可）
 - `register()` 必须在 `LifecycleEvents.COMMANDS` 之前调用，也就是 `onEnable()` 期间
 
 ## 示例所需 import
@@ -47,7 +47,7 @@ CommandBuilder.create(this)
         .register();
 ```
 
-> `.usage()` 与 `.permissionMessage()` 目前只是挂到回调参数 `command` 上的元数据，不会作用于 Brigadier 注册结果，详见 [API 参考](/zh/command/api)。
+> `.usage()` 与 `.permissionMessage()` 目前只是挂在回调参数 `command` 上的元数据，不会影响 Paper 的命令注册结果，详见 [API 参考](/zh/command/api)。
 
 ## 补全、限定与冷却
 
@@ -72,7 +72,7 @@ CommandBuilder.create(this)
 
 ## 子命令
 
-子命令必须保留父命令的执行器，否则 `register()` 会因校验失败抛出 `CommandException`：
+子命令必须保留父命令执行器，否则 `register()` 校验失败，会抛出 `CommandException`：
 
 ```java
 CommandBuilder.create(this)

@@ -2,26 +2,26 @@
 
 ## 项目定位
 
-BetterPlugin 是一个面向 Paper 服务器的插件开发框架，按能力领域提供 API 模块：
+BetterPlugin 是面向 Paper 服务器的插件开发框架，按能力拆成几个模块：
 
 | 模块 | 包路径 | 说明 | 文档 |
 | --- | --- | --- | --- |
 | 插件基础 | `org.coffeepop.betterPlugin.api.plugin` | 插件入口基类（`PluginBase`） | [插件基础](/zh/plugin) |
-| 命令 API | `org.coffeepop.betterPlugin.api.command` | Brigadier 命令注册与执行 | [命令 API](/zh/command/) |
+| 命令 API | `org.coffeepop.betterPlugin.api.command` | 命令注册与执行 | [命令 API](/zh/command/) |
 | 异常 | `org.coffeepop.betterPlugin.api.exception` | 框架公共异常类型 | [异常](/zh/exception) |
 
 ## 选择入口类
 
-使用方插件有两条等价路径：
+你有两条等价的路：
 
-- 直接继承 `JavaPlugin`。命令 API 只要求传入 `JavaPlugin` 实例，这条路完全可行。
-- 继承 `PluginBase`。`PluginBase` 目前仅提供统一的入口继承关系，不会带来额外能力；需要统一的插件入口继承关系时可选择这条路。
+- 直接继承 `JavaPlugin`。命令模块只要求传入 `JavaPlugin` 实例，这条路完全可行。
+- 继承 `PluginBase`。`PluginBase` 目前只提供统一的入口继承关系，没有额外能力；需要统一插件入口时再选它。
 
-两者都可以正常使用 `CommandBuilder`，详见 [插件基础](/zh/plugin)。
+两条路都能正常使用 `CommandBuilder`，详见 [插件基础](/zh/plugin)。
 
 ## 添加依赖
 
-第三方插件通过 JitPack 使用已发布的 tag，无需本地构建。在使用方项目的 `build.gradle.kts` 中添加：
+第三方插件通过 JitPack 使用已发布的 tag，不用本地构建。在使用方项目的 `build.gradle.kts` 中添加：
 
 ```kotlin
 repositories {
@@ -33,7 +33,7 @@ dependencies {
 }
 ```
 
-> 某个版本第一次被请求时 JitPack 会在云端构建，可能需要等待片刻；构建状态与版本列表见 [JitPack](https://jitpack.io/#CoffeePopStudio/BetterPlugin/{{plugin_version}})。
+> 某个版本第一次被请求时，JitPack 会在云端构建，可能需要等一会儿；构建状态与版本列表见 [JitPack](https://jitpack.io/#CoffeePopStudio/BetterPlugin/{{plugin_version}})。
 
 ## 声明运行期依赖
 
@@ -66,8 +66,8 @@ public class MyPlugin extends JavaPlugin {
 
 无需在 `plugin.yml` 中维护 `commands:` 段，命令由框架统一注册。
 
-> 命令 API（`CommandBuilder` / `CommandException`）目前是实验性 API，接口可能随版本调整。
-> `register()` 必须在 `onEnable()` 阶段（Paper 的 `COMMANDS` 生命周期事件之前）调用；在命令执行器、定时任务或服务器启动完成后调用，命令不会生效且不会报错。
+> 命令模块（`CommandBuilder` / `CommandException`）目前是实验性功能，接口可能随版本调整。
+> `register()` 必须在 `onEnable()` 阶段调用，也就是 Paper 的 `COMMANDS` 启动事件之前；放在命令执行器、定时任务或服务器启动完成后调用，命令不会生效，也不会报错。
 
 ## 进一步阅读
 

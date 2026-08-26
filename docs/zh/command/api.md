@@ -1,6 +1,6 @@
 # 命令 API 参考
 
-命令 API 位于 `org.coffeepop.betterPlugin.api.command` 包，入口为 `CommandBuilder`。
+命令 API 位于 `org.coffeepop.betterPlugin.api.command` 包，入口是 `CommandBuilder`。
 
 ::: warning 实验性 API
 `CommandBuilder` 与 `CommandException` 目前标注为 `@ApiStatus.Experimental`，接口可能随版本调整。
@@ -45,8 +45,8 @@ CommandBuilder builder = CommandBuilder.create(this);
 | `aliases(String... aliases)` | 配置 | 设置命令别名 |
 | `plugin(JavaPlugin plugin)` | 配置 | 设置命令归属插件 |
 | `description(String description)` | 配置 | 设置命令描述 |
-| `usage(String usage)` | 配置 | 设置 usage 元数据（仅通过回调参数 `command` 可读，不作用于 Brigadier 注册） |
-| `permissionMessage(String message)` | 配置 | 设置 permission-message 元数据（同上，不负责权限拦截提示） |
+| `usage(String usage)` | 配置 | 设置 usage 元数据（只有回调参数 `command` 能读，不影响 Paper 命令注册） |
+| `permissionMessage(String message)` | 配置 | 设置 permission-message 元数据（同上，不负责权限提示） |
 | `playerOnly()` | 配置 | 仅玩家可执行 |
 | `consoleOnly()` | 配置 | 仅控制台可执行 |
 | `cooldown(Duration duration)` | 配置 | 设置根命令的玩家冷却 |
@@ -102,7 +102,7 @@ CommandBuilder.create(this)
 ### 返回值语义
 
 - Bukkit 风格执行器返回 `boolean`：`true` 映射为成功（`Command.SINGLE_SUCCESS`，即 `1`），`false` 映射为失败（`0`）
-- Brigadier 执行器直接返回 `int`，`1` 为成功、`0` 为失败
+- Brigadier 执行器直接返回 `int`：`1` 为成功、`0` 为失败
 
 ### 优先级
 
@@ -190,4 +190,4 @@ CommandBuilder.create(this)
 - 冷却只包裹根执行路径，子命令会绕过冷却
 - 冷却提示文案为固定英文，不可配置
 - `register()` 只能在 `LifecycleEvents.COMMANDS` 之前调用（即 `onEnable()` 阶段），之后调用不会生效且不会报错
-- 整个命令 API 为实验性 API，接口可能变化
+- 整个命令 API 为实验性功能，接口可能变化

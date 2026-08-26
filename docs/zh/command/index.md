@@ -1,11 +1,11 @@
-# 命令 API 概览
+# 命令概览
 
-对应 API 包：`org.coffeepop.betterPlugin.api.command`。
+对应包：`org.coffeepop.betterPlugin.api.command`。
 
-命令模块基于 Paper Brigadier 命令系统，提供 Fluent 风格的命令注册能力。
+命令模块基于 Paper 命令系统，用链式调用注册命令。
 
-::: warning 实验性 API
-`CommandBuilder` 与 `CommandException` 目前标注为 `@ApiStatus.Experimental`，接口可能随版本调整。
+::: warning 实验性功能
+`CommandBuilder` 与 `CommandException` 目前是实验性功能，接口可能随版本调整。
 :::
 
 ## 能力范围
@@ -15,7 +15,7 @@
 - Bukkit 风格执行器与 Tab 补全
 - 玩家 / 控制台限定
 - 冷却
-- 子命令与自定义 Brigadier 子节点
+- 子命令与自定义子节点
 - 命令归属指定插件
 
 ## 工作流程
@@ -33,7 +33,7 @@ Paper 命令系统
 ```
 
 > `register()` 只负责把命令加入待注册队列，真正注册发生在 `LifecycleEvents.COMMANDS`。
-> 因此请在插件 `onEnable()` 阶段调用；在命令执行器、定时任务或服务器启动完成后调用，命令不会生效且不会报错。
+> 因此请在插件 `onEnable()` 阶段调用；放在命令执行器、定时任务或服务器启动完成后调用，命令不会生效，也不会报错。
 
 ## 快速导航
 

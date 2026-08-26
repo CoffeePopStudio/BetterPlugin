@@ -2,7 +2,7 @@
 
 ## plugin.yml
 
-使用 BetterPlugin API 的第三方插件**不需要**在 `plugin.yml` 中声明命令：
+使用 BetterPlugin 的第三方插件**不需要**在 `plugin.yml` 中声明命令：
 
 ```yaml
 # 错误：不需要 commands 段

@@ -1,12 +1,12 @@
 # 第三方插件接入
 
-BetterPlugin 可作为运行时依赖被其他插件复用。通过 `create(plugin)` 注册的命令会归属于调用方插件，而不是 BetterPlugin。
+BetterPlugin 可以作为运行时依赖被其他插件复用。通过 `create(plugin)` 注册的命令会归属于调用方插件，而不是 BetterPlugin。
 
-> 命令 API 目前是实验性 API，接口可能随版本调整。
+> 命令模块目前是实验性功能，接口可能随版本调整。
 
 ## 1. 添加依赖
 
-第三方插件通过 JitPack 直接使用已发布的 tag，无需本地构建或发布。某个版本第一次被请求时 JitPack 会在云端构建，可能需要等待片刻。
+第三方插件通过 JitPack 直接使用已发布的 tag，不用本地构建或发布。某个版本第一次被请求时，JitPack 会在云端构建，可能需要等一会儿。
 
 在使用方项目的 `build.gradle.kts` 中添加：
 
@@ -34,7 +34,7 @@ dependencies {
 https://jitpack.io/com/github/CoffeePopStudio/BetterPlugin/{{plugin_version}}/BetterPlugin-{{plugin_version}}.jar
 ```
 
-> `plugin.yml` 的 `depend` 只负责运行期加载顺序；编译仍需第 1 步的依赖。
+> `plugin.yml` 的 `depend` 只负责运行期加载顺序；编译还是要靠第 1 步的依赖。
 
 ## 3. 注册命令
 
@@ -105,4 +105,4 @@ CommandBuilder.create(this)
         .register();
 ```
 
-更多能力与限制见 [命令 API 参考](/zh/command/api)。
+更多用法与限制见 [命令 API 参考](/zh/command/api)。
