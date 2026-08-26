@@ -1,13 +1,10 @@
-/**
- * @Author: oneachina
- * @link: github.com/oneachina
- */
 package org.coffeepop.betterPlugin.internal.command;
 
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.coffeepop.betterPlugin.bootstrap.BetterPlugin;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
@@ -23,6 +20,7 @@ import java.util.function.Function;
 @ApiStatus.Internal
 public class CommandRegistry {
     private final List<Registration> registrations = new ArrayList<>();
+    private volatile boolean commandsEventFired;
 
     /**
      * Adds a command registration without aliases.
@@ -63,22 +61,34 @@ public class CommandRegistry {
      * @param description the command description, or {@code null}
      */
     public void addCommand(Function<Commands, LiteralArgumentBuilder<CommandSourceStack>> supplier, List<String> aliases, JavaPlugin owner, String description) {
-        registrations.add(new Registration(
-                supplier,
-                aliases == null ? List.of() : List.copyOf(aliases),
-                owner,
-                description
-        ));
+        if (commandsEventFired) {
+            warnTooLate();
+        }
+        synchronized (registrations) {
+            registrations.add(new Registration(
+                    supplier,
+                    aliases == null ? List.of() : List.copyOf(aliases),
+                    owner,
+                    description
+            ));
+        }
     }
 
     /**
      * Registers all pending commands with the provided Paper {@link Commands} registrar,
-     * then clears the queue.
+     * then clears the queue. The queue is snapshotted and cleared before registration,
+     * so a failing supplier cannot cause commands to be registered twice.
      *
      * @param commands the Paper command registrar
      */
     public void registerAll(Commands commands) {
-        for (Registration registration : registrations) {
+        commandsEventFired = true;
+        List<Registration> pending;
+        synchronized (registrations) {
+            pending = List.copyOf(registrations);
+            registrations.clear();
+        }
+        for (Registration registration : pending) {
             var node = registration.supplier().apply(commands).build();
             if (registration.owner() != null) {
                 commands.register(registration.owner().getPluginMeta(), node, registration.description(), registration.aliases());
@@ -86,7 +96,23 @@ public class CommandRegistry {
                 commands.register(node, registration.description(), registration.aliases());
             }
         }
-        registrations.clear();
+    }
+
+    /**
+     * Number of commands still waiting to be registered. Exposed for tests
+     * and diagnostics.
+     */
+    int pendingCount() {
+        synchronized (registrations) {
+            return registrations.size();
+        }
+    }
+
+    private void warnTooLate() {
+        BetterPlugin instance = BetterPlugin.getInstance();
+        if (instance != null) {
+            instance.getLogger().warning("A command was added after Paper's COMMANDS event; it will not be registered.");
+        }
     }
 
     private record Registration(

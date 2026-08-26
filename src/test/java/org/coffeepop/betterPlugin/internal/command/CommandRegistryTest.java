@@ -10,13 +10,14 @@ import org.mockbukkit.mockbukkit.MockBukkit;
 import org.mockbukkit.mockbukkit.command.brigadier.PaperCommandsMock;
 import org.mockbukkit.mockbukkit.plugin.PluginMock;
 
-import java.lang.reflect.Field;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class CommandRegistryTest {
 
@@ -51,7 +52,7 @@ class CommandRegistryTest {
         registry.registerAll(commands);
 
         assertNotNull(commands.getDispatcherInternal().getRoot().getChild("hello"), "command should be registered in the dispatcher");
-        assertEquals(0, registrationCount(registry), "registrations should be cleared after registerAll");
+        assertEquals(0, registry.pendingCount(), "registrations should be cleared after registerAll");
     }
 
     @Test
@@ -85,20 +86,37 @@ class CommandRegistryTest {
     }
 
     @Test
-    void registerAllCanBeCalledAgainAfterAddingMoreCommands() throws Exception {
+    void registerAllCanBeCalledAgainAfterAddingMoreCommands() {
         CommandRegistry registry = new CommandRegistry();
         PaperCommandsMock commands = newCommands();
 
         registry.addCommand(c -> LiteralArgumentBuilder.<CommandSourceStack>literal("first").executes(ctx -> 1));
         registry.registerAll(commands);
-        assertEquals(0, registrationCount(registry));
+        assertEquals(0, registry.pendingCount());
 
         registry.addCommand(c -> LiteralArgumentBuilder.<CommandSourceStack>literal("second").executes(ctx -> 1));
         registry.registerAll(commands);
 
         assertNotNull(commands.getDispatcherInternal().getRoot().getChild("first"));
         assertNotNull(commands.getDispatcherInternal().getRoot().getChild("second"));
-        assertEquals(0, registrationCount(registry));
+        assertEquals(0, registry.pendingCount());
+    }
+
+    @Test
+    void registerAllClearsQueueEvenWhenSupplierFails() {
+        CommandRegistry registry = new CommandRegistry();
+        PaperCommandsMock commands = newCommands();
+
+        registry.addCommand(c -> LiteralArgumentBuilder.<CommandSourceStack>literal("one").executes(ctx -> 1));
+        registry.addCommand(c -> {
+            throw new IllegalStateException("boom");
+        });
+
+        assertThrows(IllegalStateException.class, () -> registry.registerAll(commands));
+        assertEquals(0, registry.pendingCount(), "queue should be empty after a failing registration");
+        assertNotNull(commands.getDispatcherInternal().getRoot().getChild("one"), "commands registered before the failure should remain registered");
+
+        assertDoesNotThrow(() -> registry.registerAll(commands), "a second registerAll should be a no-op, not a re-registration of the failed queue");
     }
 
     @Test
@@ -115,11 +133,5 @@ class CommandRegistryTest {
         assertNotNull(commands.getDispatcherInternal().getRoot().getChild("main"));
         assertNotNull(commands.getDispatcherInternal().getRoot().getChild("alias-a"));
         assertNotNull(commands.getDispatcherInternal().getRoot().getChild("alias-b"));
-    }
-
-    private static int registrationCount(CommandRegistry registry) throws Exception {
-        Field field = CommandRegistry.class.getDeclaredField("registrations");
-        field.setAccessible(true);
-        return ((List<?>) field.get(registry)).size();
     }
 }
