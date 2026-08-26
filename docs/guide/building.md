@@ -27,7 +27,7 @@ gradlew.bat test
 
 1. Update `version` in `gradle.properties`.
 2. Add an entry for the matching version at the top of the root `CHANGELOG.md`; write it for regular users, without programming or Java terms (see the contribution guidelines).
-3. Push to `master`; GitHub Actions automatically builds, creates a tag, and creates a GitHub Release.
+3. Push to `master`, then run the `Release` workflow manually from the Actions tab; it builds, creates the tag, and creates the GitHub Release.
 4. JitPack builds the artifact the first time that tag is referenced; third-party plugins can then depend on it directly (see [Integration](/guide/third-party)).
 
 ## Docs Site

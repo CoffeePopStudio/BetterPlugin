@@ -27,7 +27,7 @@ gradlew.bat test
 
 1. 在 `gradle.properties` 中更新 `version`。
 2. 在根目录 `CHANGELOG.md` 顶部添加对应版本的条目；写法必须用普通用户可以读懂的语言，不使用编程或 Java 术语（见贡献规范）。
-3. 推送到 `master`，GitHub Actions 会自动构建、创建 tag 与 GitHub Release。
+3. 推送到 `master`，然后在 Actions 页面手动运行 `Release` 工作流；它会构建、创建 tag 并发布 GitHub Release。
 4. 该 tag 首次被 JitPack 引用时会构建产物，第三方插件直接引用即可（见 [集成接入](/zh/guide/third-party)）。
 
 ## 文档站
