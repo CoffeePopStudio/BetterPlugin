@@ -137,6 +137,20 @@ class CommandBuilderImplTest {
     }
 
     @Test
+    void thenRejectsNullChild() {
+        CommandBuilderImpl builder = new CommandBuilderImpl();
+        builder.name("cmd");
+        assertThrows(NullPointerException.class, () -> builder.then(null));
+    }
+
+    @Test
+    void cooldownRejectsNegative() {
+        CommandBuilderImpl builder = new CommandBuilderImpl();
+        builder.name("cmd");
+        assertThrows(IllegalArgumentException.class, () -> builder.cooldown(Duration.ofSeconds(-1)));
+    }
+
+    @Test
     void registerAddsCommandToRegistryAndExecutesIt() throws Exception {
         AtomicInteger executions = new AtomicInteger();
         CommandContext<CommandSourceStack> context = createContext("greet", executions);

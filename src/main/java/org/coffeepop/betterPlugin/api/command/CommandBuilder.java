@@ -201,10 +201,13 @@ public interface CommandBuilder {
      * fired will not take effect.
      *
      * @throws org.coffeepop.betterPlugin.api.exception.CommandException if the command name is
-     *                                                                  {@code null}/{@code empty}, or if neither
+     *                                                                  {@code null} or blank, an alias is {@code null},
+     *                                                                  blank or equal to the name, if neither
      *                                                                  {@link #context(CommandContext)},
      *                                                                  {@link #executes(Command)},
-     *                                                                  nor {@link #executes(CommandExecutor)} was set
+     *                                                                  nor {@link #executes(CommandExecutor)} was set,
+     *                                                                  if the context does not contain an executor,
+     *                                                                  or if this builder has already been registered
      */
     void register();
 }

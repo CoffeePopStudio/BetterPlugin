@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -86,7 +87,7 @@ class CommandRegistryTest {
     }
 
     @Test
-    void registerAllCanBeCalledAgainAfterAddingMoreCommands() {
+    void addCommandAfterRegisterAllIsIgnored() {
         CommandRegistry registry = new CommandRegistry();
         PaperCommandsMock commands = newCommands();
 
@@ -95,11 +96,11 @@ class CommandRegistryTest {
         assertEquals(0, registry.pendingCount());
 
         registry.addCommand(c -> LiteralArgumentBuilder.<CommandSourceStack>literal("second").executes(ctx -> 1));
-        registry.registerAll(commands);
+        assertEquals(0, registry.pendingCount(), "commands added after COMMANDS has fired should be ignored");
 
+        registry.registerAll(commands);
         assertNotNull(commands.getDispatcherInternal().getRoot().getChild("first"));
-        assertNotNull(commands.getDispatcherInternal().getRoot().getChild("second"));
-        assertEquals(0, registry.pendingCount());
+        assertNull(commands.getDispatcherInternal().getRoot().getChild("second"));
     }
 
     @Test

@@ -68,7 +68,7 @@ public class CommandBuilderImpl implements CommandBuilder {
 
     @Override
     public CommandBuilderImpl aliases(String... aliases) {
-        this.aliases = aliases;
+        this.aliases = aliases == null ? null : aliases.clone();
         return this;
     }
 
@@ -110,12 +110,18 @@ public class CommandBuilderImpl implements CommandBuilder {
 
     @Override
     public CommandBuilderImpl cooldown(Duration cooldown) {
+        if (cooldown != null && cooldown.isNegative()) {
+            throw new IllegalArgumentException("cooldown cannot be negative");
+        }
         this.cooldown = cooldown;
         return this;
     }
 
     @Override
     public CommandBuilderImpl then(ArgumentBuilder<CommandSourceStack, ?> child) {
+        if (child == null) {
+            throw new NullPointerException("child");
+        }
         children.add(child);
         return this;
     }
@@ -292,6 +298,9 @@ public class CommandBuilderImpl implements CommandBuilder {
                 if (isCoolingDown(player.getUniqueId(), now)) {
                     player.sendPlainMessage("Please wait before using this command again.");
                     return 0;
+                }
+                if (cooldowns.size() > 1000) {
+                    cooldowns.entrySet().removeIf(entry -> entry.getValue() <= now);
                 }
                 cooldowns.put(player.getUniqueId(), now + cooldown.toNanos());
             }

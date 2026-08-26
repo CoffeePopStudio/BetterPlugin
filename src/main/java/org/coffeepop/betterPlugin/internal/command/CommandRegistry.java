@@ -63,6 +63,7 @@ public class CommandRegistry {
     public void addCommand(Function<Commands, LiteralArgumentBuilder<CommandSourceStack>> supplier, List<String> aliases, JavaPlugin owner, String description) {
         if (commandsEventFired) {
             warnTooLate();
+            return;
         }
         synchronized (registrations) {
             registrations.add(new Registration(
