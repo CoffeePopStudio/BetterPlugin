@@ -10,7 +10,7 @@ import org.jetbrains.annotations.ApiStatus;
  */
 @ApiStatus.Internal
 public class BetterPlugin extends PluginBase {
-    private static BetterPlugin instance;
+    private static volatile BetterPlugin instance;
     private CommandRegistry commandRegistry;
 
     @Override
@@ -22,6 +22,11 @@ public class BetterPlugin extends PluginBase {
                 LifecycleEvents.COMMANDS,
                 event -> commandRegistry.registerAll(event.registrar())
         );
+    }
+
+    @Override
+    protected void onPluginDisable() {
+        instance = null;
     }
 
     public static BetterPlugin getInstance() {
