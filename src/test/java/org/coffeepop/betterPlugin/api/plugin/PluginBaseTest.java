@@ -1,6 +1,7 @@
 package org.coffeepop.betterPlugin.api.plugin;
 
 import org.bukkit.scheduler.BukkitTask;
+import org.coffeepop.betterPlugin.api.command.CommandBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PluginBaseTest {
@@ -69,6 +71,10 @@ class PluginBaseTest {
 
         void exposedRunWhenReady(Runnable task) {
             runWhenReady(task);
+        }
+
+        CommandBuilder exposedCommand() {
+            return command();
         }
     }
 
@@ -160,5 +166,12 @@ class PluginBaseTest {
         AtomicBoolean ranImmediately = new AtomicBoolean();
         plugin.exposedRunWhenReady(() -> ranImmediately.set(true));
         assertTrue(ranImmediately.get(), "task should run immediately when the server is already ready");
+    }
+
+    @Test
+    void commandReturnsBuilderForThisPlugin() {
+        CommandBuilder builder = plugin.exposedCommand();
+
+        assertNotNull(builder, "command() should return a builder for the plugin");
     }
 }

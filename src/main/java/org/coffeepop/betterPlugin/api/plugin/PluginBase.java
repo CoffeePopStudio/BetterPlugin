@@ -2,6 +2,7 @@ package org.coffeepop.betterPlugin.api.plugin;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
+import org.coffeepop.betterPlugin.api.command.CommandBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -189,5 +190,13 @@ public abstract class PluginBase extends JavaPlugin {
     private BukkitTask track(BukkitTask task) {
         ownedTasks.add(task);
         return task;
+    }
+
+    /**
+     * Returns a {@link CommandBuilder} bound to this plugin. Shortcut for
+     * {@code CommandBuilder.create(this)}.
+     */
+    protected CommandBuilder command() {
+        return CommandBuilder.create(this);
     }
 }
