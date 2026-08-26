@@ -15,7 +15,7 @@ BetterPlugin is a plugin development framework for Paper servers. Its features a
 Plugins that use the framework have two options:
 
 - Extend `JavaPlugin` directly. The command module only needs a `JavaPlugin` instance, so this path works fine.
-- Extend `PluginBase`. It adds no extra features today; it only gives you a shared plugin entry base. Choose it when you want that shared base.
+- Extend `PluginBase`. It adds everyday helpers on top of `JavaPlugin`: typed config reading, a short logger alias, task scheduling with automatic cleanup on disable, `runWhenReady`, and a `command()` shortcut. See [Plugin entry](/plugin) for details.
 
 Both can use `CommandBuilder`; see [Plugin base](/plugin) for details.
 

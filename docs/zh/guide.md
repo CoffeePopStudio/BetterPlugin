@@ -15,7 +15,7 @@ BetterPlugin 是面向 Paper 服务器的插件开发框架，按能力拆成几
 你有两条等价的路：
 
 - 直接继承 `JavaPlugin`。命令模块只要求传入 `JavaPlugin` 实例，这条路完全可行。
-- 继承 `PluginBase`。`PluginBase` 目前只提供统一的入口继承关系，没有额外能力；需要统一插件入口时再选它。
+- 继承 `PluginBase`。它在 `JavaPlugin` 之上提供常用助手：带默认值的配置读取、日志短别名、自动清理的任务调度、`runWhenReady` 和 `command()` 快捷方式。详见 [插件入口](/zh/plugin)。
 
 两条路都能正常使用 `CommandBuilder`，详见 [插件基础](/zh/plugin)。
 
