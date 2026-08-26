@@ -19,11 +19,11 @@ const pluginVersion = readPluginVersion()
 const enNav = [
   { text: 'Home', link: '/' },
   { text: 'Quick start', link: '/guide' },
-  { text: 'Command API', link: '/command/' },
-  { text: 'Plugin base', link: '/plugin' },
-  { text: 'Exceptions', link: '/exception' },
+  { text: 'Commands', link: '/command/' },
+  { text: 'Plugin entry', link: '/plugin' },
+  { text: 'Errors', link: '/exception' },
   { text: 'Integration', link: '/guide/third-party' },
-  { text: 'Configuration', link: '/guide/configuration' },
+  { text: 'plugin.yml', link: '/guide/configuration' },
 ]
 
 const enSidebar = [
@@ -32,25 +32,25 @@ const enSidebar = [
     items: [
       { text: 'Quick start', link: '/guide' },
       { text: 'Integration', link: '/guide/third-party' },
-      { text: 'Configuration', link: '/guide/configuration' },
+      { text: 'plugin.yml', link: '/guide/configuration' },
       { text: 'Building & contributing', link: '/guide/building' },
     ],
   },
   {
     text: 'Modules',
     items: [
-      { text: 'Plugin base', link: '/plugin' },
+      { text: 'Plugin entry', link: '/plugin' },
       {
-        text: 'Command API',
+        text: 'Commands',
         collapsed: false,
         items: [
           { text: 'Overview', link: '/command/' },
           { text: 'Quick start', link: '/command/quick-start' },
-          { text: 'API reference', link: '/command/api' },
+          { text: 'Reference', link: '/command/api' },
           { text: 'Examples', link: '/command/examples' },
         ],
       },
-      { text: 'Exceptions', link: '/exception' },
+      { text: 'Errors', link: '/exception' },
     ],
   },
 ]
@@ -58,11 +58,11 @@ const enSidebar = [
 const zhNav = [
   { text: '首页', link: '/zh/' },
   { text: '快速开始', link: '/zh/guide' },
-  { text: '命令 API', link: '/zh/command/' },
-  { text: '插件基础', link: '/zh/plugin' },
-  { text: '异常', link: '/zh/exception' },
+  { text: '命令', link: '/zh/command/' },
+  { text: '插件入口', link: '/zh/plugin' },
+  { text: '错误', link: '/zh/exception' },
   { text: '集成接入', link: '/zh/guide/third-party' },
-  { text: '配置说明', link: '/zh/guide/configuration' },
+  { text: 'plugin.yml', link: '/zh/guide/configuration' },
 ]
 
 const zhSidebar = [
@@ -71,25 +71,25 @@ const zhSidebar = [
     items: [
       { text: '快速开始', link: '/zh/guide' },
       { text: '集成接入', link: '/zh/guide/third-party' },
-      { text: '配置说明', link: '/zh/guide/configuration' },
+      { text: 'plugin.yml', link: '/zh/guide/configuration' },
       { text: '构建与贡献', link: '/zh/guide/building' },
     ],
   },
   {
     text: '模块',
     items: [
-      { text: '插件基础', link: '/zh/plugin' },
+      { text: '插件入口', link: '/zh/plugin' },
       {
-        text: '命令 API',
+        text: '命令',
         collapsed: false,
         items: [
           { text: '概览', link: '/zh/command/' },
           { text: '快速上手', link: '/zh/command/quick-start' },
-          { text: 'API 参考', link: '/zh/command/api' },
+          { text: '参考', link: '/zh/command/api' },
           { text: '示例', link: '/zh/command/examples' },
         ],
       },
-      { text: '异常', link: '/zh/exception' },
+      { text: '错误', link: '/zh/exception' },
     ],
   },
 ]
