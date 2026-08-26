@@ -26,11 +26,17 @@ public abstract class PluginBase extends JavaPlugin {
         getServer().getScheduler().runTaskLater(this, () -> {
             List<Runnable> tasks;
             synchronized (pendingWhenReady) {
+                serverReady = true;
                 tasks = List.copyOf(pendingWhenReady);
                 pendingWhenReady.clear();
             }
-            serverReady = true;
-            tasks.forEach(Runnable::run);
+            for (Runnable task : tasks) {
+                try {
+                    task.run();
+                } catch (RuntimeException e) {
+                    getLogger().log(java.util.logging.Level.WARNING, "A runWhenReady task failed", e);
+                }
+            }
         }, 1L);
         onPluginEnable();
     }
@@ -178,16 +184,20 @@ public abstract class PluginBase extends JavaPlugin {
      * thread.
      */
     protected void runWhenReady(Runnable task) {
-        if (serverReady) {
-            task.run();
-            return;
-        }
+        boolean runNow;
         synchronized (pendingWhenReady) {
-            pendingWhenReady.add(task);
+            runNow = serverReady;
+            if (!runNow) {
+                pendingWhenReady.add(task);
+            }
+        }
+        if (runNow) {
+            task.run();
         }
     }
 
     private BukkitTask track(BukkitTask task) {
+        ownedTasks.removeIf(BukkitTask::isCancelled);
         ownedTasks.add(task);
         return task;
     }

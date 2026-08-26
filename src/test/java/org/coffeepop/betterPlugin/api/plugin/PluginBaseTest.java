@@ -169,6 +169,20 @@ class PluginBaseTest {
     }
 
     @Test
+    void runWhenReadyDoesNotSkipTasksAfterAFailure() {
+        AtomicBoolean secondRan = new AtomicBoolean();
+
+        plugin.exposedRunWhenReady(() -> {
+            throw new IllegalStateException("boom");
+        });
+        plugin.exposedRunWhenReady(() -> secondRan.set(true));
+
+        server.getScheduler().performTicks(1);
+
+        assertTrue(secondRan.get(), "a failing task must not prevent later tasks from running");
+    }
+
+    @Test
     void commandReturnsBuilderForThisPlugin() {
         CommandBuilder builder = plugin.exposedCommand();
 
