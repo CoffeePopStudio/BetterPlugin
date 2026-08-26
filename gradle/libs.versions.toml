@@ -1,5 +1,5 @@
 [versions]
-paper-api = "26.1.2.build.+"
+paper-api = "26.1.2.build.74-stable"
 minecraft = "26.1.2"
 mockbukkit = "4.115.0"
 run-task = "3.1.0"
