@@ -178,8 +178,11 @@ CommandBuilder.create(this)
 
 When you call `register()`:
 
-- The command name must not be `null` or an empty string
+- The command name must not be `null` or blank
+- An alias must not be `null`, blank, or the same as the command name
 - One of `context`, `executes(Command)`, or `executes(CommandExecutor)` must be set
+- A `context` must contain an executor
+- A builder cannot be registered twice
 
 Otherwise a [CommandException](/exception) is thrown.
 
@@ -189,5 +192,5 @@ Otherwise a [CommandException](/exception) is thrown.
 - When `tabCompleter` and `then` are both set and child nodes exist, the Bukkit completion is ignored
 - The cooldown only wraps the root execution path; subcommands bypass the cooldown
 - The cooldown message is fixed English text and is not configurable
-- `register()` can only be called before `LifecycleEvents.COMMANDS` (that is, during `onEnable()`); calling it later has no effect and does not error
+- `register()` can only be called before `LifecycleEvents.COMMANDS` (that is, during `onEnable()`); calling it later logs a warning and has no effect
 - The whole command module is experimental; interfaces may change

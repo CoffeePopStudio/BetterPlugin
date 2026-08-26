@@ -29,7 +29,7 @@ Common types:
 
 ### 4.1 Branch Naming
 
-All pull request branches must use one of the following prefixes:
+All pull request branches must use one of the following prefixes. External pull requests are validated automatically; branches opened in this repository must follow the same rules.
 
 | Prefix | Purpose |
 | --- | --- |

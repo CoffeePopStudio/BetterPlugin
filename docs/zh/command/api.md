@@ -178,8 +178,11 @@ CommandBuilder.create(this)
 
 调用 `register()` 时：
 
-- 命令名不能为 `null` 或空字符串
+- 命令名不能为 `null` 或空白
+- 别名不能为 `null`、空白，也不能与命令名相同
 - 必须设置 `context`、`executes(Command)`、`executes(CommandExecutor)` 之一
+- 使用 `context` 时，其中必须包含执行器
+- 同一个 builder 不能注册两次
 
 否则抛出 [CommandException](/zh/exception)。
 
@@ -189,5 +192,5 @@ CommandBuilder.create(this)
 - `tabCompleter` 与 `then` 同时设置时：有子节点则 Bukkit 补全被忽略
 - 冷却只包裹根执行路径，子命令会绕过冷却
 - 冷却提示文案为固定英文，不可配置
-- `register()` 只能在 `LifecycleEvents.COMMANDS` 之前调用（即 `onEnable()` 阶段），之后调用不会生效且不会报错
+- `register()` 只能在 `LifecycleEvents.COMMANDS` 之前调用（即 `onEnable()` 阶段），之后调用会记录警告且不会生效
 - 整个命令 API 为实验性功能，接口可能变化
