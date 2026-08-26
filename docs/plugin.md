@@ -1,41 +1,72 @@
-# Plugin Base
+# Plugin entry
 
 Corresponding package: `org.coffeepop.betterPlugin.api.plugin`.
 
 ## PluginBase
 
-`PluginBase` is BetterPlugin's plugin entry base class. It extends `JavaPlugin`:
-
-```java
-public abstract class PluginBase extends JavaPlugin {
-}
-```
-
-Use it like this:
+`PluginBase` extends `JavaPlugin` and adds a few convenience helpers on top. Instead of overriding `onEnable` / `onDisable`, you override `onPluginEnable` / `onPluginDisable`:
 
 ```java
 import org.coffeepop.betterPlugin.api.plugin.PluginBase;
 
+import java.util.List;
+
 public final class MyPlugin extends PluginBase {
 
     @Override
-    public void onEnable() {
-        // plugin enable logic
+    protected void onPluginEnable() {
+        saveDefaultConfig();
+
+        int interval = configInt("auto-save.interval-seconds", 300);
+        boolean announce = configBoolean("join-announcement.enabled", true);
+        List<String> greetings = configStringList("greetings");
+
+        log().info("MyPlugin is ready.");
+
+        runSyncTimer(this::saveData, 0L, interval * 20L);
+        runAsync(this::fetchRemoteNews);
+
+        runWhenReady(() -> log().info("Server finished starting."));
+
+        command()
+                .name("greet")
+                .playerOnly()
+                .executes((sender, command, label, args) -> {
+                    sender.sendPlainMessage(greetings.isEmpty() ? "Hi!" : greetings.get(0));
+                    return true;
+                })
+                .register();
     }
 
     @Override
-    public void onDisable() {
-        // plugin disable logic
+    protected void onPluginDisable() {
+        log().info("MyPlugin stopped.");
+    }
+
+    private void saveData() {
+        // save your data
+    }
+
+    private void fetchRemoteNews() {
+        // fetch remote data
     }
 }
 ```
 
-Right now, `PluginBase` only gives you a shared entry base. It adds no extra setup or service helpers.
+## Built-in helpers
+
+| Helper | What it does |
+| --- | --- |
+| `configString` / `configInt` / `configLong` / `configDouble` / `configBoolean` / `configStringList` | Reads typed values from `config.yml`, with defaults when a path is missing |
+| `log()` | Short alias for the plugin logger |
+| `runSync` / `runAsync` / `runSyncLater` / `runSyncTimer` / `runAsyncTimer` | Schedules tasks; every task created this way is cancelled automatically on disable |
+| `isServerReady` / `runWhenReady` | Runs code once the server has finished starting |
+| `command()` | Shortcut for `CommandBuilder.create(this)` |
 
 ## Relationship to JavaPlugin
 
 - `CommandBuilder.create(...)` only needs a `JavaPlugin` instance, so plugins that extend `JavaPlugin` directly can also use the command module
-- Extending `PluginBase` is optional; use it when you want a shared plugin entry base
+- Extending `PluginBase` is optional; use it when you want the built-in helpers
 - The two paths work together fine, and command registration behaves the same either way
 
 ## Module Boundaries
@@ -49,4 +80,4 @@ Right now, `PluginBase` only gives you a shared entry base. It adds no extra set
 
 - [Quick start](/guide)
 - [Third-party plugin integration](/guide/third-party)
-- [Command API overview](/command/)
+- [Commands overview](/command/)
