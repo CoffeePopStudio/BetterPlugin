@@ -1,14 +1,14 @@
-# Command API Quick Start
+# Commands Quick Start
 
 ::: warning Experimental API
-`CommandBuilder` and `CommandException` are currently experimental APIs; the interfaces may change between versions.
+`CommandBuilder` and `CommandException` are experimental right now, so the interfaces may change between versions.
 :::
 
 ## Prerequisites
 
 - The plugin declares a runtime dependency on BetterPlugin (`depend` in `plugin.yml`)
 - Call it in `onEnable()`; `this` is the current plugin instance (either `JavaPlugin` or `PluginBase` works)
-- `register()` must be called before `LifecycleEvents.COMMANDS`, i.e. during `onEnable()`
+- Call `register()` before `LifecycleEvents.COMMANDS` fires — that means during `onEnable()`
 
 ## Required Imports for the Examples
 
@@ -47,7 +47,7 @@ CommandBuilder.create(this)
         .register();
 ```
 
-> `.usage()` and `.permissionMessage()` are currently only metadata attached to the callback parameter `command`; they do not affect the Brigadier registration result. See [API Reference](/command/api) for details.
+> `.usage()` and `.permissionMessage()` are only metadata on the callback parameter `command` for now; they don't affect the command registration result. See [API Reference](/command/api) for details.
 
 ## Completion, Restrictions, and Cooldown
 
@@ -90,6 +90,6 @@ CommandBuilder.create(this)
         .register();
 ```
 
-> Note: after adding `.then(...)` child nodes, `.tabCompleter(...)` is ignored; the parent command's `.cooldown(...)` also only applies to the parent execution path, and child nodes are not affected.
+> Note: after you add `.then(...)` child nodes, `.tabCompleter(...)` is ignored. The parent command's `.cooldown(...)` also applies only to the parent execution path; child nodes are not affected.
 
-For more configuration options, see [API Reference](/command/api); for complete examples, see [Examples](/command/examples).
+For more options, see [API Reference](/command/api); for complete examples, see [Examples](/command/examples).

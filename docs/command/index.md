@@ -1,21 +1,21 @@
-# Command API Overview
+# Commands Overview
 
-Corresponding API package: `org.coffeepop.betterPlugin.api.command`.
+Corresponding package: `org.coffeepop.betterPlugin.api.command`.
 
-The command module is built on Paper's Brigadier command system and provides fluent-style command registration.
+The command module is built on Paper's command system and offers chainable command registration.
 
 ::: warning Experimental API
-`CommandBuilder` and `CommandException` are currently annotated `@ApiStatus.Experimental`; the interfaces may change between versions.
+`CommandBuilder` and `CommandException` are experimental right now, so the interfaces may change between versions.
 :::
 
 ## Capabilities
 
-- Chainable declaration of command name, permission, and aliases
+- Chainable setup of command name, permission, and aliases
 - Command description, usage, and no-permission message metadata
 - Bukkit-style executors and tab completion
 - Player / console restrictions
 - Cooldowns
-- Subcommands and custom Brigadier child nodes
+- Subcommands and custom child nodes
 - Assigning commands to a specific plugin
 
 ## Workflow
@@ -32,8 +32,8 @@ LifecycleEvents.COMMANDS
 Paper command system
 ```
 
-> `register()` only adds the command to the pending registration queue; the actual registration happens during `LifecycleEvents.COMMANDS`.
-> Therefore call it during your plugin's `onEnable()` phase; calling it from a command executor, a scheduled task, or after the server has finished starting will silently have no effect.
+> `register()` only adds the command to the pending registration queue; the actual registration happens when `LifecycleEvents.COMMANDS` fires.
+> So call it during your plugin's `onEnable()`. Calling it from a command executor, a scheduled task, or after the server has finished starting will silently have no effect.
 
 ## Quick Navigation
 

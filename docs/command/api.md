@@ -1,6 +1,6 @@
 # Command API Reference
 
-The command API is located in the `org.coffeepop.betterPlugin.api.command` package, and its entry point is `CommandBuilder`.
+The command module lives in the `org.coffeepop.betterPlugin.api.command` package, and `CommandBuilder` is its entry point.
 
 ::: warning Experimental API
 `CommandBuilder` and `CommandException` are currently annotated `@ApiStatus.Experimental`; the interfaces may change between versions.
@@ -20,17 +20,17 @@ import java.util.List;                              // Required for the completi
 
 ### `create()`
 
-Creates a command Builder; the command belongs to BetterPlugin by default.
+Creates a `CommandBuilder`; the command belongs to BetterPlugin by default.
 
 ```java
 CommandBuilder builder = CommandBuilder.create();
 ```
 
-Third-party plugins should use `create(this)` or `.plugin(this)` instead to avoid registering commands under BetterPlugin.
+Third-party plugins should use `create(this)` or `.plugin(this)` instead, so commands don't get registered under BetterPlugin.
 
 ### `create(JavaPlugin plugin)`
 
-Creates a command Builder; the command belongs to the specified plugin.
+Creates a `CommandBuilder`; the command belongs to the plugin you pass in.
 
 ```java
 CommandBuilder builder = CommandBuilder.create(this);
@@ -45,13 +45,13 @@ CommandBuilder builder = CommandBuilder.create(this);
 | `aliases(String... aliases)` | Configuration | Sets the command aliases |
 | `plugin(JavaPlugin plugin)` | Configuration | Sets the plugin that owns the command |
 | `description(String description)` | Configuration | Sets the command description |
-| `usage(String usage)` | Configuration | Sets usage metadata (only readable via the callback parameter `command`; does not affect Brigadier registration) |
+| `usage(String usage)` | Configuration | Sets usage metadata (only readable through the callback parameter `command`; does not affect Brigadier registration) |
 | `permissionMessage(String message)` | Configuration | Sets permission-message metadata (same as above; does not handle permission-denied messages) |
 | `playerOnly()` | Configuration | Only players can execute |
 | `consoleOnly()` | Configuration | Only the console can execute |
 | `cooldown(Duration duration)` | Configuration | Sets the root command's player cooldown |
 | `then(ArgumentBuilder)` | Configuration | Adds a subcommand / child node (after adding, `tabCompleter` no longer applies) |
-| `context(CommandContext)` | Executor | Reuses a Command from an existing Brigadier Context |
+| `context(CommandContext)` | Executor | Reuses a command from an existing Brigadier context |
 | `executes(Command)` | Executor | Sets the Brigadier executor |
 | `executes(CommandExecutor)` | Executor | Sets the Bukkit executor |
 | `tabCompleter(TabCompleter)` | Configuration | Sets tab completion (only applies when there are no child nodes) |
@@ -61,7 +61,7 @@ CommandBuilder builder = CommandBuilder.create(this);
 
 ### `executes(CommandExecutor)`
 
-Bukkit-style executor, suitable for most cases:
+Bukkit-style executor; this fits most cases:
 
 ```java
 CommandBuilder.create(this)
@@ -89,7 +89,7 @@ CommandBuilder.create(this)
 
 ### `context(CommandContext<CommandSourceStack>)`
 
-Reuses a Brigadier Command from an already-parsed context. This is an advanced usage. An available `CommandContext<CommandSourceStack>` typically comes from `CommandDispatcher.parse(...).getContext().build(...)`; in most cases you can simply use one of the two `executes` methods above.
+Reuses a Brigadier command from an already-parsed context. This is for advanced use. You usually get a `CommandContext<CommandSourceStack>` from `CommandDispatcher.parse(...).getContext().build(...)`; in most cases, one of the two `executes` methods above is enough.
 
 ```java
 // someContext comes from a parsed Brigadier context, for example
@@ -106,7 +106,7 @@ CommandBuilder.create(this)
 
 ### Priority
 
-If multiple executors are set at the same time, the effective order is: `context` > `executes(Command)` > `executes(CommandExecutor)`. Mixing them is not recommended.
+If you set more than one executor, the effective order is: `context` > `executes(Command)` > `executes(CommandExecutor)`. Mixing them is not recommended.
 
 ## Tab Completion
 
@@ -115,15 +115,15 @@ If multiple executors are set at the same time, the effective order is: `context
 ```
 
 - `command` is a lightweight `Command` adapter, never `null`
-- `alias` is the command alias the user typed
+- `alias` is the alias the user typed
 - `args` is the current argument array
-- After adding `.then(...)` child nodes, `.tabCompleter(...)` is ignored; for child-node completion, use Brigadier's own `suggests` / argument types
+- After you add `.then(...)` child nodes, `.tabCompleter(...)` is ignored; use Brigadier's own `suggests` / argument types for child-node completion
 
 ## Command Restrictions
 
 ### `playerOnly()`
 
-Only `Player` can execute:
+Only a `Player` can execute:
 
 ```java
 CommandBuilder.create(this)
@@ -146,7 +146,7 @@ CommandBuilder.create(this)
         .register();
 ```
 
-> Restrictions stack: when multiple conditions are set at the same time, the sender must satisfy all of them. For example, `permission(...)` plus `playerOnly()` means "a player with the permission". Do not set `playerOnly()` and `consoleOnly()` together, otherwise all senders will be rejected.
+> Restrictions stack: when you set more than one, the sender must satisfy all of them. For example, `permission(...)` plus `playerOnly()` means "a player with the permission". Don't set `playerOnly()` and `consoleOnly()` together; that would reject every sender.
 
 ## Cooldown
 
@@ -158,8 +158,8 @@ CommandBuilder.create(this)
 ```
 
 - Cooldowns only apply to `Player`
-- The cooldown only applies to the root command execution path; subcommands added with `.then(...)` use their own executors and are not affected by this cooldown
-- During the cooldown the command returns failure (equivalent to `false` for the Bukkit style), the executor does not run, and the player receives the fixed English message `"Please wait before using this command again."` (not configurable for now)
+- The cooldown only applies to the root command execution path; subcommands added with `.then(...)` use their own executors and are not affected
+- During the cooldown the command returns failure (equivalent to `false` for the Bukkit style), the executor does not run, and the player sees the fixed English message `"Please wait before using this command again."` (not configurable for now)
 
 ## Subcommands
 
@@ -176,7 +176,7 @@ CommandBuilder.create(this)
 
 ## Validation Rules
 
-When calling `register()`:
+When you call `register()`:
 
 - The command name must not be `null` or an empty string
 - One of `context`, `executes(Command)`, or `executes(CommandExecutor)` must be set
@@ -185,9 +185,9 @@ Otherwise a [CommandException](/exception) is thrown.
 
 ## Known Limitations
 
-- `usage` and `permissionMessage` are currently only metadata attached to the `Command` adapter (readable through the `command` parameter of the executor / completion callback); they do not participate in Paper's Brigadier registration and are not shown when permission is missing
-- When `tabCompleter` and `then` are set at the same time: if child nodes exist, the Bukkit completion is ignored
+- `usage` and `permissionMessage` are only metadata on the `Command` adapter for now (readable through the `command` parameter of the executor / completion callback); they don't take part in Paper's Brigadier registration and are not shown when permission is missing
+- When `tabCompleter` and `then` are both set and child nodes exist, the Bukkit completion is ignored
 - The cooldown only wraps the root execution path; subcommands bypass the cooldown
 - The cooldown message is fixed English text and is not configurable
-- `register()` can only be called before `LifecycleEvents.COMMANDS` (i.e. during the `onEnable()` phase); calling it later has no effect and does not error
-- The entire command API is experimental; interfaces may change
+- `register()` can only be called before `LifecycleEvents.COMMANDS` (that is, during `onEnable()`); calling it later has no effect and does not error
+- The whole command module is experimental; interfaces may change

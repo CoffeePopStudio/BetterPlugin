@@ -1,17 +1,17 @@
 # Plugin Base
 
-Corresponding API package: `org.coffeepop.betterPlugin.api.plugin`.
+Corresponding package: `org.coffeepop.betterPlugin.api.plugin`.
 
 ## PluginBase
 
-`PluginBase` is the plugin entry base class provided by BetterPlugin, extending `JavaPlugin`:
+`PluginBase` is BetterPlugin's plugin entry base class. It extends `JavaPlugin`:
 
 ```java
 public abstract class PluginBase extends JavaPlugin {
 }
 ```
 
-Usage:
+Use it like this:
 
 ```java
 import org.coffeepop.betterPlugin.api.plugin.PluginBase;
@@ -30,20 +30,20 @@ public final class MyPlugin extends PluginBase {
 }
 ```
 
-Currently, `PluginBase` only provides a unified entry inheritance relationship and includes no additional lifecycle or service access capabilities.
+Right now, `PluginBase` only gives you a shared entry base. It adds no extra setup or service helpers.
 
 ## Relationship to JavaPlugin
 
-- `CommandBuilder.create(...)` only requires a `JavaPlugin` instance, so plugins that extend `JavaPlugin` directly can also use the command API
-- Extending `PluginBase` is optional and suits plugins that want to keep a unified plugin entry inheritance relationship
-- The two paths do not conflict with each other, and command registration behavior is identical
+- `CommandBuilder.create(...)` only needs a `JavaPlugin` instance, so plugins that extend `JavaPlugin` directly can also use the command module
+- Extending `PluginBase` is optional; use it when you want a shared plugin entry base
+- The two paths work together fine, and command registration behaves the same either way
 
 ## Module Boundaries
 
-- Plugin entry and lifecycle: `org.coffeepop.betterPlugin.api.plugin`
+- Plugin entry: `org.coffeepop.betterPlugin.api.plugin`
 - Command registration: `org.coffeepop.betterPlugin.api.command`
 - Common exceptions: `org.coffeepop.betterPlugin.api.exception`
-- Internal implementation: the `internal` package; no compatibility is guaranteed, and it should not be used in external plugins
+- Internal implementation: the `internal` package; compatibility is not guaranteed, so don't use it from external plugins
 
 ## Related Pages
 

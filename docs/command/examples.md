@@ -1,9 +1,9 @@
 # Command Examples
 
-All examples below assume they are called in `JavaPlugin.onEnable()`, with `this` being the current plugin instance.
+All examples below assume they run in `JavaPlugin.onEnable()`, with `this` as the current plugin instance.
 
 ::: warning Experimental API
-`CommandBuilder` and `CommandException` are currently experimental APIs; the interfaces may change between versions.
+`CommandBuilder` and `CommandException` are experimental right now, so the interfaces may change between versions.
 :::
 
 ## Required Imports for the Examples
@@ -87,7 +87,7 @@ CommandBuilder.create(this)
         .register();
 ```
 
-> Do not set both `playerOnly()` and `consoleOnly()` on the same command (the restrictions stack, and applying both together rejects every sender).
+> Don't set both `playerOnly()` and `consoleOnly()` on the same command; the restrictions stack, and together they reject every sender.
 
 ## Cooldown
 
@@ -102,7 +102,7 @@ CommandBuilder.create(this)
         .register();
 ```
 
-The cooldown only applies to players and only wraps the root execution path, and the message is fixed English text for now; see [API Reference](/command/api) for details.
+The cooldown only applies to players and only wraps the root execution path. The message is fixed English text for now; see [API Reference](/command/api) for details.
 
 ## Subcommands
 

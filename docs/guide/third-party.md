@@ -1,12 +1,12 @@
 # Third-Party Plugin Integration
 
-BetterPlugin can be reused by other plugins as a runtime dependency. Commands registered via `create(plugin)` belong to the calling plugin, not BetterPlugin.
+BetterPlugin can be used by other plugins as a runtime dependency. Commands registered with `create(plugin)` belong to the calling plugin, not BetterPlugin.
 
-> The command API is currently an experimental API; the interfaces may change between versions.
+> The command module is experimental right now, so the interfaces may change between versions.
 
 ## 1. Add the Dependency
 
-Third-party plugins use JitPack to consume published tags directly; no local build or publishing is required. The first time a version is requested, JitPack builds it in the cloud, which may take a moment.
+Third-party plugins use JitPack to consume published tags directly; no local build or publishing is needed. The first time a version is requested, JitPack builds it in the cloud, which can take a moment.
 
 Add the following to the consuming project's `build.gradle.kts`:
 
@@ -34,7 +34,7 @@ Also place the BetterPlugin jar in the server's `plugins/` directory, for exampl
 https://jitpack.io/com/github/CoffeePopStudio/BetterPlugin/{{plugin_version}}/BetterPlugin-{{plugin_version}}.jar
 ```
 
-> The `depend` entry in `plugin.yml` only controls runtime load order; compilation still requires the dependency from step 1.
+> The `depend` entry in `plugin.yml` only controls runtime load order; you still need the compile-time dependency from step 1.
 
 ## 3. Register Commands
 
@@ -57,7 +57,7 @@ public class MyPlugin extends JavaPlugin {
 }
 ```
 
-The main class can also extend `PluginBase`; both approaches work, see [Plugin Basics](/plugin).
+The main class can also extend `PluginBase`; both approaches work. See [Plugin Basics](/plugin).
 
 ## 4. Specify the Plugin
 
@@ -80,7 +80,7 @@ CommandBuilder.create()
         .register();
 ```
 
-> Note: if `.plugin()` is not specified, the command is registered under BetterPlugin. Third-party plugins must use `create(this)` or `.plugin(this)`.
+> Note: if you don't set `.plugin()`, the command is registered under BetterPlugin. Third-party plugins must use `create(this)` or `.plugin(this)`.
 
 ## 5. Permission, Aliases, Completion
 

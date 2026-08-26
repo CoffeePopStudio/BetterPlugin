@@ -21,12 +21,12 @@ gradlew.bat build
 gradlew.bat test
 ```
 
-> The `build` task already includes tests; you do not need to run `test` before `build`.
+> The `build` task already includes tests, so you don't need to run `test` before `build`.
 
 ## Publishing a New Version
 
 1. Update `version` in `gradle.properties`.
-2. Add an entry for the corresponding version at the top of the root `CHANGELOG.md`; the wording must be understandable to regular users and must not use programming or Java terminology (see the contribution guidelines).
+2. Add an entry for the matching version at the top of the root `CHANGELOG.md`; write it for regular users, without programming or Java terms (see the contribution guidelines).
 3. Push to `master`; GitHub Actions automatically builds, creates a tag, and creates a GitHub Release.
 4. JitPack builds the artifact the first time that tag is referenced; third-party plugins can then depend on it directly (see [Integration](/guide/third-party)).
 
@@ -59,4 +59,4 @@ authors: [Neamyoo]
 Notes when modifying `paper-plugin.yml`:
 
 - `main`, `bootstrapper`, and `loader` must point to the correct fully qualified class names
-- `processResources` performs variable substitution for `${version}` in `paper-plugin.yml`
+- `processResources` substitutes `${version}` in `paper-plugin.yml`

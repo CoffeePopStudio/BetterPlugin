@@ -1,14 +1,14 @@
 # Exceptions
 
-Corresponding API package: `org.coffeepop.betterPlugin.api.exception`.
+Corresponding package: `org.coffeepop.betterPlugin.api.exception`.
 
 ::: warning Experimental API
-`CommandBuilder` and `CommandException` are both currently experimental APIs (`@ApiStatus.Experimental`); their interfaces may change between versions.
+`CommandBuilder` and `CommandException` are experimental right now, so their interfaces may change between versions.
 :::
 
 ## CommandException
 
-`CommandException` is thrown when a command cannot be registered, indicating that the builder is in an invalid state:
+`CommandException` is thrown when a command cannot be registered because the builder is in an invalid state:
 
 ```java
 public class CommandException extends RuntimeException {
@@ -20,14 +20,14 @@ public class CommandException extends RuntimeException {
 
 ### Throwing Conditions
 
-When calling `CommandBuilder.register()`:
+When you call `CommandBuilder.register()`:
 
 - The command name is `null` or an empty string
-- No executor has been set (`context` / `executes(Command)` / `executes(CommandExecutor)`)
+- No executor is set (`context` / `executes(Command)` / `executes(CommandExecutor)`)
 
 ### Example
 
-A case that triggers the exception:
+This case throws the exception:
 
 ```java
 CommandBuilder.create()
@@ -44,7 +44,7 @@ CommandBuilder.create()
         .register();
 ```
 
-> If you need to catch this exception, log it and handle it; avoid calling `printStackTrace()` directly in production code.
+> If you catch this exception, log it and handle it. Avoid calling `printStackTrace()` directly in production code.
 
 ## Related Pages
 
