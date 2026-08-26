@@ -184,6 +184,9 @@ public abstract class PluginBase extends JavaPlugin {
      * thread.
      */
     protected void runWhenReady(Runnable task) {
+        if (task == null) {
+            throw new NullPointerException("task");
+        }
         boolean runNow;
         synchronized (pendingWhenReady) {
             runNow = serverReady;
