@@ -1,6 +1,11 @@
 package org.coffeepop.betterPlugin.api.plugin;
 
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Plugin entry base class for BetterPlugin users.
@@ -11,13 +16,30 @@ import org.bukkit.plugin.java.JavaPlugin;
  */
 public abstract class PluginBase extends JavaPlugin {
 
+    private final List<BukkitTask> ownedTasks = new CopyOnWriteArrayList<>();
+    private final List<Runnable> pendingWhenReady = new ArrayList<>();
+    private volatile boolean serverReady;
+
     @Override
     public final void onEnable() {
+        getServer().getScheduler().runTaskLater(this, () -> {
+            List<Runnable> tasks;
+            synchronized (pendingWhenReady) {
+                tasks = List.copyOf(pendingWhenReady);
+                pendingWhenReady.clear();
+            }
+            serverReady = true;
+            tasks.forEach(Runnable::run);
+        }, 1L);
         onPluginEnable();
     }
 
     @Override
     public final void onDisable() {
+        for (BukkitTask task : ownedTasks) {
+            task.cancel();
+        }
+        ownedTasks.clear();
         onPluginDisable();
     }
 
@@ -98,5 +120,74 @@ public abstract class PluginBase extends JavaPlugin {
             return java.util.List.of();
         }
         return config.getStringList(path);
+    }
+
+    /**
+     * Runs a task on the main thread now. The returned task is owned by the
+     * plugin and is cancelled automatically on disable.
+     */
+    protected BukkitTask runSync(Runnable task) {
+        return track(getServer().getScheduler().runTask(this, task));
+    }
+
+    /**
+     * Runs a task on an asynchronous thread now. The returned task is owned
+     * by the plugin and is cancelled automatically on disable.
+     */
+    protected BukkitTask runAsync(Runnable task) {
+        return track(getServer().getScheduler().runTaskAsynchronously(this, task));
+    }
+
+    /**
+     * Runs a task on the main thread after {@code delayTicks} ticks. The
+     * returned task is owned by the plugin and is cancelled automatically on
+     * disable.
+     */
+    protected BukkitTask runSyncLater(Runnable task, long delayTicks) {
+        return track(getServer().getScheduler().runTaskLater(this, task, delayTicks));
+    }
+
+    /**
+     * Runs a repeating task on the main thread. The returned task is owned
+     * by the plugin and is cancelled automatically on disable.
+     */
+    protected BukkitTask runSyncTimer(Runnable task, long delayTicks, long periodTicks) {
+        return track(getServer().getScheduler().runTaskTimer(this, task, delayTicks, periodTicks));
+    }
+
+    /**
+     * Runs a repeating asynchronous task. The returned task is owned by the
+     * plugin and is cancelled automatically on disable.
+     */
+    protected BukkitTask runAsyncTimer(Runnable task, long delayTicks, long periodTicks) {
+        return track(getServer().getScheduler().runTaskTimerAsynchronously(this, task, delayTicks, periodTicks));
+    }
+
+    /**
+     * Whether the server has finished starting. Returns {@code true} once the
+     * first tick after enable has passed.
+     */
+    protected boolean isServerReady() {
+        return serverReady;
+    }
+
+    /**
+     * Runs the task once the server is ready (the first tick after enable).
+     * If the server is already ready, the task runs immediately on the calling
+     * thread.
+     */
+    protected void runWhenReady(Runnable task) {
+        if (serverReady) {
+            task.run();
+            return;
+        }
+        synchronized (pendingWhenReady) {
+            pendingWhenReady.add(task);
+        }
+    }
+
+    private BukkitTask track(BukkitTask task) {
+        ownedTasks.add(task);
+        return task;
     }
 }

@@ -1,5 +1,6 @@
 package org.coffeepop.betterPlugin.api.plugin;
 
+import org.bukkit.scheduler.BukkitTask;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,8 +9,11 @@ import org.mockbukkit.mockbukkit.ServerMock;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PluginBaseTest {
@@ -53,6 +57,18 @@ class PluginBaseTest {
 
         List<String> exposedConfigStringList(String path) {
             return configStringList(path);
+        }
+
+        BukkitTask exposedRunSyncTimer(Runnable task, long delayTicks, long periodTicks) {
+            return runSyncTimer(task, delayTicks, periodTicks);
+        }
+
+        boolean exposedServerReady() {
+            return isServerReady();
+        }
+
+        void exposedRunWhenReady(Runnable task) {
+            runWhenReady(task);
         }
     }
 
@@ -110,5 +126,39 @@ class PluginBaseTest {
         assertEquals(2.5, plugin.exposedConfigDouble("missing", 2.5));
         assertEquals(true, plugin.exposedConfigBoolean("missing", true));
         assertEquals(List.of(), plugin.exposedConfigStringList("missing"));
+    }
+
+    @Test
+    void ownedTasksAreCancelledOnDisable() {
+        AtomicInteger runs = new AtomicInteger();
+        BukkitTask task = plugin.exposedRunSyncTimer(runs::incrementAndGet, 0L, 1L);
+
+        assertFalse(task.isCancelled(), "task should not be cancelled while the plugin is enabled");
+
+        server.getScheduler().performTicks(3);
+        assertTrue(runs.get() > 0, "repeating task should run when ticks pass");
+
+        server.getPluginManager().disablePlugin(plugin);
+
+        assertTrue(task.isCancelled(), "owned task should be cancelled when the plugin is disabled");
+    }
+
+    @Test
+    void runWhenReadyDefersUntilServerIsReady() {
+        AtomicBoolean ran = new AtomicBoolean();
+
+        assertFalse(plugin.exposedServerReady(), "server should not be ready during onEnable");
+
+        plugin.exposedRunWhenReady(() -> ran.set(true));
+        assertFalse(ran.get(), "task should wait while the server is still starting");
+
+        server.getScheduler().performTicks(1);
+
+        assertTrue(plugin.exposedServerReady(), "server should be ready after the first tick");
+        assertTrue(ran.get(), "deferred task should run once the server is ready");
+
+        AtomicBoolean ranImmediately = new AtomicBoolean();
+        plugin.exposedRunWhenReady(() -> ranImmediately.set(true));
+        assertTrue(ranImmediately.get(), "task should run immediately when the server is already ready");
     }
 }
