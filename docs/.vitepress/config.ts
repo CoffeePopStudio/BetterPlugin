@@ -17,13 +17,9 @@ function readPluginVersion(): string {
 const pluginVersion = readPluginVersion()
 
 const enNav = [
-  { text: 'Home', link: '/' },
   { text: 'Quick start', link: '/guide' },
   { text: 'Commands', link: '/command/' },
-  { text: 'Plugin entry', link: '/plugin' },
-  { text: 'Errors', link: '/exception' },
   { text: 'Integration', link: '/guide/third-party' },
-  { text: 'plugin.yml', link: '/guide/configuration' },
 ]
 
 const enSidebar = [
@@ -56,13 +52,9 @@ const enSidebar = [
 ]
 
 const zhNav = [
-  { text: '首页', link: '/zh/' },
   { text: '快速开始', link: '/zh/guide' },
   { text: '命令', link: '/zh/command/' },
-  { text: '插件入口', link: '/zh/plugin' },
-  { text: '错误', link: '/zh/exception' },
   { text: '集成接入', link: '/zh/guide/third-party' },
-  { text: 'plugin.yml', link: '/zh/guide/configuration' },
 ]
 
 const zhSidebar = [
