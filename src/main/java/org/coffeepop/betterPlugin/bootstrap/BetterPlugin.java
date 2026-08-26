@@ -14,7 +14,7 @@ public class BetterPlugin extends PluginBase {
     private CommandRegistry commandRegistry;
 
     @Override
-    public void onEnable() {
+    protected void onPluginEnable() {
         instance = this;
         this.commandRegistry = new CommandRegistry();
 
@@ -22,11 +22,6 @@ public class BetterPlugin extends PluginBase {
                 LifecycleEvents.COMMANDS,
                 event -> commandRegistry.registerAll(event.registrar())
         );
-    }
-
-    @Override
-    public void onDisable() {
-
     }
 
     public static BetterPlugin getInstance() {
