@@ -4,7 +4,7 @@ layout: home
 hero:
   name: BetterPlugin
   text: 面向 Paper 服务器的插件开发框架
-  tagline: 提供统一的插件入口基类与模块化 API，每个模块可独立使用、自由组合。
+  tagline: 用更少样板代码开发 Paper 插件。
   actions:
     - theme: brand
       text: 快速开始
@@ -15,23 +15,19 @@ hero:
 
 <div class="module-grid">
   <a class="module-card" href="/zh/plugin">
-    <strong>统一插件入口</strong>
-    <span><code>PluginBase</code> 提供 <code>JavaPlugin</code> 的统一继承入口，直接继承 <code>JavaPlugin</code> 同样可用。</span>
+    <strong>简单入口</strong>
+    <span>可以从一个基类开始，也可以完全走自己的路，两条路都行。</span>
   </a>
   <a class="module-card" href="/zh/guide">
-    <strong>模块化 API</strong>
-    <span>按能力领域划分 API 模块，各模块可独立使用、自由组合。</span>
-  </a>
-  <a class="module-card" href="/zh/command/">
-    <strong>命令注册</strong>
-    <span>基于 Paper Brigadier 的 Fluent API，支持权限、别名、补全、冷却与子命令（实验性）。</span>
-  </a>
-  <a class="module-card" href="/zh/exception">
-    <strong>公共异常</strong>
-    <span>统一的框架异常类型，便于调用方处理。</span>
+    <strong>模块化设计</strong>
+    <span>按需取用，每个模块独立存在、可选可组合。</span>
   </a>
   <a class="module-card" href="/zh/guide/third-party">
-    <strong>第三方复用</strong>
-    <span>可作为运行时依赖被其他插件引用，命令归属调用方插件。</span>
+    <strong>为共享而生</strong>
+    <span>其他插件也能直接使用，命令始终归属你自己的插件。</span>
+  </a>
+  <a class="module-card" href="/zh/guide/building">
+    <strong>更多能力在路上</strong>
+    <span>框架还在早期，常用能力会一个模块一个模块地加入，欢迎一起决定下一步。</span>
   </a>
 </div>

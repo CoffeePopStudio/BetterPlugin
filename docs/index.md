@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: BetterPlugin
-  text: A plugin development framework for Paper servers
-  tagline: Provides a unified plugin entry base class and a modular API; each module can be used independently and combined freely.
+  text: A framework for building Paper plugins
+  tagline: Write Paper plugins with less boilerplate.
   actions:
     - theme: brand
       text: Quick Start
@@ -15,23 +15,19 @@ hero:
 
 <div class="module-grid">
   <a class="module-card" href="/plugin">
-    <strong>Unified plugin entry</strong>
-    <span><code>PluginBase</code> provides a unified inheritance entry point for <code>JavaPlugin</code>; extending <code>JavaPlugin</code> directly works just as well.</span>
+    <strong>Simple entry point</strong>
+    <span>Start from one base class, or go your own way. Both work.</span>
   </a>
   <a class="module-card" href="/guide">
-    <strong>Modular API</strong>
-    <span>API modules are organized by capability area; each module can be used independently and combined freely.</span>
-  </a>
-  <a class="module-card" href="/command/">
-    <strong>Command registration</strong>
-    <span>A Fluent API built on Paper Brigadier, supporting permissions, aliases, completion, cooldowns, and subcommands (experimental).</span>
-  </a>
-  <a class="module-card" href="/exception">
-    <strong>Common exceptions</strong>
-    <span>Unified framework exception types that are easy for callers to handle.</span>
+    <strong>Modular by design</strong>
+    <span>Pick the pieces you need. Each module is independent and optional.</span>
   </a>
   <a class="module-card" href="/guide/third-party">
-    <strong>Third-party reuse</strong>
-    <span>Can be referenced by other plugins as a runtime dependency; commands belong to the calling plugin.</span>
+    <strong>Built to be shared</strong>
+    <span>Other plugins can use it too, while everything stays under your plugin's name.</span>
+  </a>
+  <a class="module-card" href="/guide/building">
+    <strong>More to come</strong>
+    <span>The framework is still young. Common conveniences will land module by module — help shape what's next.</span>
   </a>
 </div>
