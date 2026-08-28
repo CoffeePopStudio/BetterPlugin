@@ -63,11 +63,11 @@ repositories {
 }
 
 dependencies {
-    compileOnly("com.github.CoffeePopStudio:BetterPlugin:26.9.1-mc26.1.2")
+    compileOnly("com.github.CoffeePopStudio:BetterPlugin:26.10.0-mc26.1.2")
 }
 ```
 
-Build status and available versions: <https://jitpack.io/#CoffeePopStudio/BetterPlugin/26.9.1-mc26.1.2>
+Build status and available versions: <https://jitpack.io/#CoffeePopStudio/BetterPlugin/26.10.0-mc26.1.2>
 
 ## Building and testing
 
