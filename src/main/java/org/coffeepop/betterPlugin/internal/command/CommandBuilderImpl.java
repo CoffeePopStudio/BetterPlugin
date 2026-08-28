@@ -46,6 +46,7 @@ public class CommandBuilderImpl implements CommandBuilder {
     private boolean playerOnly;
     private boolean consoleOnly;
     private Duration cooldown;
+    private String cooldownMessage;
     private final List<ArgumentBuilder<CommandSourceStack, ?>> children = new ArrayList<>();
     private final Map<UUID, Long> cooldowns = new HashMap<>();
     private CommandContext<CommandSourceStack> context;
@@ -118,6 +119,12 @@ public class CommandBuilderImpl implements CommandBuilder {
     }
 
     @Override
+    public CommandBuilderImpl cooldownMessage(String cooldownMessage) {
+        this.cooldownMessage = cooldownMessage;
+        return this;
+    }
+
+    @Override
     public CommandBuilderImpl then(ArgumentBuilder<CommandSourceStack, ?> child) {
         if (child == null) {
             throw new NullPointerException("child");
@@ -151,6 +158,7 @@ public class CommandBuilderImpl implements CommandBuilder {
     }
 
     @Override
+    @SuppressWarnings("deprecation") // Command#setPermissionMessage is deprecated but still used for Bukkit adapter metadata
     public void register() {
         if (registered) {
             throw new CommandException("This builder has already been registered; create a new CommandBuilder for each command");
@@ -198,7 +206,15 @@ public class CommandBuilderImpl implements CommandBuilder {
 
         Predicate<CommandSourceStack> requirement = source -> true;
         if (permission != null && !permission.isEmpty()) {
-            requirement = requirement.and(source -> source.getSender().hasPermission(permission));
+            requirement = requirement.and(source -> {
+                if (source.getSender().hasPermission(permission)) {
+                    return true;
+                }
+                if (permissionMessage != null && !permissionMessage.isBlank()) {
+                    source.getSender().sendPlainMessage(permissionMessage);
+                }
+                return false;
+            });
         }
         if (playerOnly) {
             requirement = requirement.and(source -> source.getSender() instanceof Player);
@@ -296,7 +312,9 @@ public class CommandBuilderImpl implements CommandBuilder {
             if (sender instanceof Player player) {
                 long now = System.nanoTime();
                 if (isCoolingDown(player.getUniqueId(), now)) {
-                    player.sendPlainMessage("Please wait before using this command again.");
+                    player.sendPlainMessage(cooldownMessage == null
+                            ? "Please wait before using this command again."
+                            : cooldownMessage);
                     return 0;
                 }
                 if (cooldowns.size() > 1000) {

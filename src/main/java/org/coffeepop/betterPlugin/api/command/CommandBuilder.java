@@ -8,16 +8,12 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.coffeepop.betterPlugin.internal.command.CommandBuilderImpl;
-import org.jetbrains.annotations.ApiStatus;
 
 import java.time.Duration;
 
 /**
  * Fluent builder for registering Paper Brigadier commands.
- * <p>
- * This API is still experimental and may change in future versions.
  */
-@ApiStatus.Experimental
 public interface CommandBuilder {
 
     /**
@@ -96,12 +92,12 @@ public interface CommandBuilder {
     CommandBuilder usage(String usage);
 
     /**
-     * Sets the permission-message metadata exposed through the lightweight
-     * {@link Command} adapter passed to executors and tab completers.
+     * Sets the permission message sent when a sender without the required
+     * permission tries to run this command.
      * <p>
-     * Permission enforcement is handled by Brigadier's {@code requires}
-     * predicate; this value is not shown automatically when a sender lacks
-     * the required permission.
+     * The value is also exposed through the lightweight {@link Command} adapter
+     * passed to executors and tab completers. If not set, no custom message is
+     * sent when the permission check fails.
      *
      * @param permissionMessage the permission message
      * @return this builder, for chaining
@@ -133,12 +129,24 @@ public interface CommandBuilder {
      * <p>
      * Subcommands added via {@link #then(ArgumentBuilder)} use their own
      * executors and are not affected by this cooldown. When a player is
-     * blocked, the executor does not run and a fixed English message is sent.
+     * blocked, the executor does not run and a message is sent (see
+     * {@link #cooldownMessage(String)} for the default).
      *
      * @param cooldown the cooldown duration
      * @return this builder, for chaining
      */
     CommandBuilder cooldown(Duration cooldown);
+
+    /**
+     * Sets the message shown when a player is still on cooldown.
+     * <p>
+     * If not set, the fixed English message
+     * {@code "Please wait before using this command again."} is used.
+     *
+     * @param cooldownMessage the cooldown message
+     * @return this builder, for chaining
+     */
+    CommandBuilder cooldownMessage(String cooldownMessage);
 
     /**
      * Adds a child node to the command, enabling subcommands or arguments.

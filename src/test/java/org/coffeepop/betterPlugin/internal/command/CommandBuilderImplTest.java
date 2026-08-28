@@ -8,6 +8,7 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
+import net.kyori.adventure.text.Component;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -70,6 +71,7 @@ class CommandBuilderImplTest {
         assertSame(builder, builder.playerOnly());
         assertSame(builder, builder.consoleOnly());
         assertSame(builder, builder.cooldown(Duration.ofSeconds(1)));
+        assertSame(builder, builder.cooldownMessage("wait"));
         assertSame(builder, builder.then(LiteralArgumentBuilder.<CommandSourceStack>literal("sub")));
         assertSame(builder, builder.context(null));
         assertSame(builder, builder.tabCompleter(null));
@@ -388,6 +390,7 @@ class CommandBuilderImplTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation") // Command#getPermissionMessage is deprecated but still exposed for adapter metadata
     void registerAppliesCommandMetadataToAdapter() throws Exception {
         AtomicReference<Command> seenCommand = new AtomicReference<>();
 
@@ -594,6 +597,43 @@ class CommandBuilderImplTest {
         assertEquals(1, first);
         assertEquals(1, second);
         assertEquals(2, executions.get(), "cooldown should only affect players");
+    }
+
+    @Test
+    void cooldownMessageIsConfigurable() throws Exception {
+        PlayerMock player = server.addPlayer();
+
+        CommandBuilder builder = CommandBuilder.create()
+                .name("cooldownmsg")
+                .cooldown(Duration.ofSeconds(60))
+                .cooldownMessage("Still cooling down!")
+                .executes((sender, command, label, args) -> true);
+
+        CommandDispatcher<CommandSourceStack> dispatcher = registerAndGetDispatcher(builder);
+        CommandSourceStack source = CommandSourceStackMock.from(player);
+
+        assertDoesNotThrow(() -> dispatcher.execute("cooldownmsg", source));
+        int second = assertDoesNotThrow(() -> dispatcher.execute("cooldownmsg", source));
+
+        assertEquals(0, second);
+        assertEquals(Component.text("Still cooling down!"), player.nextComponentMessage());
+    }
+
+    @Test
+    void permissionMessageIsSentWhenPermissionMissing() throws Exception {
+        PlayerMock player = server.addPlayer();
+
+        CommandBuilder builder = CommandBuilder.create()
+                .name("secretmsg")
+                .permission("test.secretmsg")
+                .permissionMessage("No permission!")
+                .executes((sender, command, label, args) -> true);
+
+        CommandDispatcher<CommandSourceStack> dispatcher = registerAndGetDispatcher(builder);
+        CommandSourceStack source = CommandSourceStackMock.from(player);
+
+        assertThrows(CommandSyntaxException.class, () -> dispatcher.execute("secretmsg", source));
+        assertEquals(Component.text("No permission!"), player.nextComponentMessage());
     }
 
     @Test
