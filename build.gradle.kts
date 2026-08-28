@@ -23,6 +23,10 @@ tasks.test {
     useJUnitPlatform()
 }
 
+tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs.add("-Xlint:deprecation")
+}
+
 publishing {
     publications {
         create<MavenPublication>("maven") {
