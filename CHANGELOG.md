@@ -2,6 +2,14 @@
 
 Every release must be described here in plain, human-readable language. Readers should understand what changed without any programming or Java knowledge.
 
+## 26.10.0-mc26.1.2 - 2026-08-26
+
+- Commands can now show a custom message while a player waits for a cooldown; the default message is still English.
+- Commands can show a custom message when a player does not have permission.
+- The command system is now considered stable instead of experimental.
+- Plugins that use the shared starting point can now bundle extra default files (for example, message files) and have them copied into the server automatically when they are missing.
+- Build checks now warn earlier about outdated internal components.
+
 ## 26.9.1-mc26.1.2 - 2026-08-26
 
 - Commands now understand quoted text: typing `/say "hello world"` keeps the two words together as one piece of text.
