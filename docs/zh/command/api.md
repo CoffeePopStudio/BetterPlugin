@@ -2,10 +2,6 @@
 
 命令 API 位于 `org.coffeepop.betterPlugin.api.command` 包，入口是 `CommandBuilder`。
 
-::: warning 实验性 API
-`CommandBuilder` 与 `CommandException` 目前标注为 `@ApiStatus.Experimental`，接口可能随版本调整。
-:::
-
 ## 示例所需 import
 
 ```java
@@ -188,9 +184,9 @@ CommandBuilder.create(this)
 
 ## 已知限制
 
-- `usage` 与 `permissionMessage` 目前只作为元数据挂在 `Command` 适配器上（可通过执行器 / 补全回调的 `command` 参数读取），不参与 Paper 的 Brigadier 注册，也不会在权限不足时显示
+- `usage` 目前只作为元数据挂在 `Command` 适配器上（可通过执行器 / 补全回调的 `command` 参数读取），不参与 Paper 的 Brigadier 注册
+- `permissionMessage` 会在发送者缺少所需权限时发送，同时也会暴露在 `Command` 适配器上
 - `tabCompleter` 与 `then` 同时设置时：有子节点则 Bukkit 补全被忽略
 - 冷却只包裹根执行路径，子命令会绕过冷却
-- 冷却提示文案为固定英文，不可配置
+- 冷却提示默认是固定英文，可用 `cooldownMessage(String)` 修改
 - `register()` 只能在 `LifecycleEvents.COMMANDS` 之前调用（即 `onEnable()` 阶段），之后调用会记录警告且不会生效
-- 整个命令 API 为实验性功能，接口可能变化

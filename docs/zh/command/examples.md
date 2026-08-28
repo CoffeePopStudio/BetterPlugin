@@ -2,10 +2,6 @@
 
 以下示例均假设在 `JavaPlugin.onEnable()` 中调用，`this` 是当前插件实例。
 
-::: warning 实验性 API
-`CommandBuilder` 与 `CommandException` 目前是实验性 API，接口可能随版本调整。
-:::
-
 ## 示例所需 import
 
 ```java

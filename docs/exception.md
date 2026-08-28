@@ -2,10 +2,6 @@
 
 Corresponding package: `org.coffeepop.betterPlugin.api.exception`.
 
-::: warning Experimental API
-`CommandBuilder` and `CommandException` are experimental right now, so their interfaces may change between versions.
-:::
-
 ## CommandException
 
 `CommandException` is thrown when a command cannot be registered because the builder is in an invalid state:

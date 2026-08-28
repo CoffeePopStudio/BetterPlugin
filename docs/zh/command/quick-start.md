@@ -1,9 +1,5 @@
 # 命令快速上手
 
-::: warning 实验性功能
-`CommandBuilder` 与 `CommandException` 目前是实验性功能，接口可能随版本调整。
-:::
-
 ## 前提
 
 - 插件在 `plugin.yml` 的 `depend` 里声明运行期依赖 BetterPlugin

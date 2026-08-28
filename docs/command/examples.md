@@ -2,10 +2,6 @@
 
 All examples below assume they run in `JavaPlugin.onEnable()`, with `this` as the current plugin instance.
 
-::: warning Experimental API
-`CommandBuilder` and `CommandException` are experimental right now, so the interfaces may change between versions.
-:::
-
 ## Required Imports for the Examples
 
 ```java

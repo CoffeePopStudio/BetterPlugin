@@ -66,8 +66,7 @@ public class MyPlugin extends JavaPlugin {
 
 无需在 `plugin.yml` 中维护 `commands:` 段，命令由框架统一注册。
 
-> 命令模块（`CommandBuilder` / `CommandException`）目前是实验性功能，接口可能随版本调整。
-> `register()` 必须在 `onEnable()` 阶段调用，也就是 Paper 的 `COMMANDS` 启动事件之前；放在命令执行器、定时任务或服务器启动完成后调用，命令不会生效，也不会报错。
+> `register()` 必须在 `onEnable()` 阶段调用，也就是 Paper 的 `COMMANDS` 启动事件之前；放在命令执行器、定时任务或服务器启动完成后调用，命令不会生效，并会记录警告。
 
 ## 进一步阅读
 

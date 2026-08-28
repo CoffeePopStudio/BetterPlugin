@@ -1,9 +1,5 @@
 # Commands Quick Start
 
-::: warning Experimental API
-`CommandBuilder` and `CommandException` are experimental right now, so the interfaces may change between versions.
-:::
-
 ## Prerequisites
 
 - The plugin declares a runtime dependency on BetterPlugin (`depend` in `plugin.yml`)

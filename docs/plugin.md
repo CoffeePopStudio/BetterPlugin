@@ -59,6 +59,7 @@ public final class MyPlugin extends PluginBase {
 | --- | --- |
 | `configString` / `configInt` / `configLong` / `configDouble` / `configBoolean` / `configStringList` | Reads typed values from `config.yml`, with defaults when a path is missing |
 | `log()` | Short alias for the plugin logger |
+| `saveDefaultResource(path)` | Copies a file from the plugin jar into the plugin data folder only if it doesn't already exist |
 | `runSync` / `runAsync` / `runSyncLater` / `runSyncTimer` / `runAsyncTimer` | Schedules tasks; every task created this way is cancelled automatically on disable |
 | `isServerReady` / `runWhenReady` | Runs code once the server has finished starting |
 | `command()` | Shortcut for `CommandBuilder.create(this)` |

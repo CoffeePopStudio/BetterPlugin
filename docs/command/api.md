@@ -2,10 +2,6 @@
 
 The command module lives in the `org.coffeepop.betterPlugin.api.command` package, and `CommandBuilder` is its entry point.
 
-::: warning Experimental API
-`CommandBuilder` and `CommandException` are currently annotated `@ApiStatus.Experimental`; the interfaces may change between versions.
-:::
-
 ## Required Imports for the Examples
 
 ```java
@@ -188,9 +184,9 @@ Otherwise a [CommandException](/exception) is thrown.
 
 ## Known Limitations
 
-- `usage` and `permissionMessage` are only metadata on the `Command` adapter for now (readable through the `command` parameter of the executor / completion callback); they don't take part in Paper's Brigadier registration and are not shown when permission is missing
+- `usage` is metadata on the `Command` adapter for now (readable through the `command` parameter of the executor / completion callback); it doesn't take part in Paper's Brigadier registration
+- `permissionMessage` is sent when a sender lacks the required permission, and is also exposed through the `Command` adapter
 - When `tabCompleter` and `then` are both set and child nodes exist, the Bukkit completion is ignored
 - The cooldown only wraps the root execution path; subcommands bypass the cooldown
-- The cooldown message is fixed English text and is not configurable
+- The cooldown message defaults to fixed English text and can be changed with `cooldownMessage(String)`
 - `register()` can only be called before `LifecycleEvents.COMMANDS` (that is, during `onEnable()`); calling it later logs a warning and has no effect
-- The whole command module is experimental; interfaces may change

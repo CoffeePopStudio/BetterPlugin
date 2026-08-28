@@ -66,8 +66,7 @@ public class MyPlugin extends JavaPlugin {
 
 You don't need to keep a `commands:` section in `plugin.yml`; the framework registers commands for you.
 
-> The command module (`CommandBuilder` / `CommandException`) is experimental right now, and its interfaces may change between versions.
-> Call `register()` during `onEnable()`, before Paper's `COMMANDS` event fires. If you call it from a command executor, a scheduled task, or after startup, the command won't be registered and no error is reported.
+> Call `register()` during `onEnable()`, before Paper's `COMMANDS` event fires. If you call it from a command executor, a scheduled task, or after startup, the command won't be registered and a warning is logged.
 
 ## Further Reading
 

@@ -4,10 +4,6 @@
 
 命令模块基于 Paper 命令系统，用链式调用注册命令。
 
-::: warning 实验性功能
-`CommandBuilder` 与 `CommandException` 目前是实验性功能，接口可能随版本调整。
-:::
-
 ## 能力范围
 
 - 链式声明命令名、权限、别名

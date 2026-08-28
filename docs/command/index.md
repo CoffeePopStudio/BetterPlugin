@@ -4,10 +4,6 @@ Corresponding package: `org.coffeepop.betterPlugin.api.command`.
 
 The command module is built on Paper's command system and offers chainable command registration.
 
-::: warning Experimental API
-`CommandBuilder` and `CommandException` are experimental right now, so the interfaces may change between versions.
-:::
-
 ## Capabilities
 
 - Chainable setup of command name, permission, and aliases

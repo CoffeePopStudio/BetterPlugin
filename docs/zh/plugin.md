@@ -59,6 +59,7 @@ public final class MyPlugin extends PluginBase {
 | --- | --- |
 | `configString` / `configInt` / `configLong` / `configDouble` / `configBoolean` / `configStringList` | 从 `config.yml` 读取指定类型的值，路径缺失时返回默认值 |
 | `log()` | 插件 logger 的短别名 |
+| `saveDefaultResource(path)` | 把插件 jar 里的文件复制到插件数据目录，仅当目标不存在时执行 |
 | `runSync` / `runAsync` / `runSyncLater` / `runSyncTimer` / `runAsyncTimer` | 调度任务；这些方法创建的任务会在插件卸载时自动取消 |
 | `isServerReady` / `runWhenReady` | 在服务器启动完成后执行代码 |
 | `command()` | `CommandBuilder.create(this)` 的快捷方式 |

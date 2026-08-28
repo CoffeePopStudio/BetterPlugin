@@ -2,10 +2,6 @@
 
 对应包：`org.coffeepop.betterPlugin.api.exception`。
 
-::: warning 实验性功能
-`CommandBuilder` 与 `CommandException` 目前都是实验性功能，接口可能随版本调整。
-:::
-
 ## CommandException
 
 `CommandException` 在命令无法注册时抛出，表示 Builder 处于无效状态：

@@ -2,8 +2,6 @@
 
 BetterPlugin can be used by other plugins as a runtime dependency. Commands registered with `create(plugin)` belong to the calling plugin, not BetterPlugin.
 
-> The command module is experimental right now, so the interfaces may change between versions.
-
 ## 1. Add the Dependency
 
 Third-party plugins use JitPack to consume published tags directly; no local build or publishing is needed. The first time a version is requested, JitPack builds it in the cloud, which can take a moment.
