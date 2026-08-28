@@ -130,6 +130,17 @@ public abstract class PluginBase extends JavaPlugin {
     }
 
     /**
+     * Copies a file from the plugin jar into the plugin data folder only if it
+     * does not already exist. Useful for shipping default resource files other
+     * than {@code config.yml}, such as {@code messages.yml}.
+     *
+     * @param path the resource path inside the jar, e.g. {@code "messages.yml"}
+     */
+    protected void saveDefaultResource(String path) {
+        saveResource(path, false);
+    }
+
+    /**
      * Runs a task on the main thread now. The returned task is owned by the
      * plugin and is cancelled automatically on disable.
      */

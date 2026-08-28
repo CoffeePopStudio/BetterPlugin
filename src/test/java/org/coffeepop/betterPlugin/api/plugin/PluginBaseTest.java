@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.io.File;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -75,6 +76,10 @@ class PluginBaseTest {
 
         CommandBuilder exposedCommand() {
             return command();
+        }
+
+        void exposedSaveDefaultResource(String path) {
+            saveDefaultResource(path);
         }
     }
 
@@ -187,5 +192,13 @@ class PluginBaseTest {
         CommandBuilder builder = plugin.exposedCommand();
 
         assertNotNull(builder, "command() should return a builder for the plugin");
+    }
+
+    @Test
+    void saveDefaultResourceCopiesFileFromClasspath() {
+        plugin.exposedSaveDefaultResource("test-resource.txt");
+
+        File file = new File(plugin.getDataFolder(), "test-resource.txt");
+        assertTrue(file.isFile(), "resource should be copied into the plugin data folder");
     }
 }
