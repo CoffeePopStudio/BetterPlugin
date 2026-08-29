@@ -209,7 +209,7 @@ CommandBuilder.create(this)
 
 - Cooldowns only apply to `Player`
 - The cooldown only applies to the root command execution path; subcommands added with `.then(...)` use their own executors and are not affected
-- During the cooldown the command returns failure (equivalent to `false` for the Bukkit style), the executor does not run, and the player sees the fixed English message `"Please wait before using this command again."` (not configurable for now)
+- During the cooldown the command returns failure (equivalent to `false` for the Bukkit style), the executor does not run, and the player sees the cooldown message (default: `"Please wait before using this command again."`)
 
 ## Subcommands
 

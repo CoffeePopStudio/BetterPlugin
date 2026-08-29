@@ -98,7 +98,7 @@ CommandBuilder.create(this)
         .register();
 ```
 
-The cooldown only applies to players and only wraps the root execution path. The message is fixed English text for now; see [API Reference](/command/api) for details.
+The cooldown only applies to players and only wraps the root execution path. The default message is fixed English but can be changed with `cooldownMessage(String)`; see [API Reference](/command/api) for details.
 
 ## Subcommands
 

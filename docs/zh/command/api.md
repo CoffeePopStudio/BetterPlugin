@@ -209,7 +209,7 @@ CommandBuilder.create(this)
 
 - 冷却仅对 `Player` 生效
 - 冷却只作用于根命令执行路径；`.then(...)` 添加的子命令使用自己的执行器，不受该冷却影响
-- 冷却期间命令返回失败（Bukkit 风格相当于 `false`），执行器不会执行，并向玩家发送固定英文提示 `"Please wait before using this command again."`（暂不可配置）
+- 冷却期间命令返回失败（Bukkit 风格相当于 `false`），执行器不会执行，并向玩家发送冷却提示（默认：`"Please wait before using this command again."`）
 
 ## 子命令
 

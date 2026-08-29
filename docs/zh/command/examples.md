@@ -98,7 +98,7 @@ CommandBuilder.create(this)
         .register();
 ```
 
-冷却仅对玩家生效、只作用于根执行路径，提示文案暂为固定英文，详见 [API 参考](/zh/command/api)。
+冷却仅对玩家生效、只作用于根执行路径，默认提示为固定英文，可用 `cooldownMessage(String)` 修改，详见 [API 参考](/zh/command/api)。
 
 ## 子命令
 
