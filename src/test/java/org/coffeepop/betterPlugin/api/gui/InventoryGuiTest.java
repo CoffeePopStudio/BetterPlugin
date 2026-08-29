@@ -10,9 +10,12 @@ import org.mockbukkit.mockbukkit.ServerMock;
 import org.mockbukkit.mockbukkit.entity.PlayerMock;
 import org.mockbukkit.mockbukkit.plugin.PluginMock;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InventoryGuiTest {
 
@@ -65,5 +68,28 @@ class InventoryGuiTest {
 
         ItemStack topItem = player.getOpenInventory().getTopInventory().getItem(0);
         assertEquals(Material.DIAMOND, topItem.getType());
+    }
+
+    @Test
+    void setItemUpdatesOpenedInventory() {
+        InventoryGui gui = InventoryGui.builder(plugin, 9, "Menu").build();
+
+        gui.open(player);
+        gui.setItem(0, new ItemStack(Material.EMERALD));
+
+        assertEquals(Material.EMERALD, player.getOpenInventory().getTopInventory().getItem(0).getType());
+    }
+
+    @Test
+    void onCloseHandlerRunsWhenPlayerCloses() {
+        AtomicBoolean closed = new AtomicBoolean();
+        InventoryGui gui = InventoryGui.builder(plugin, 9, "Menu")
+                .onClose(p -> closed.set(true))
+                .build();
+
+        gui.open(player);
+        player.closeInventory();
+
+        assertTrue(closed.get(), "close handler should run when the player closes the GUI");
     }
 }

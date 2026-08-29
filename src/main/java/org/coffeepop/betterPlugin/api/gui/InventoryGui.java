@@ -9,12 +9,15 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.coffeepop.betterPlugin.api.event.ListenerRegistry;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * Minimal inventory GUI helper.
@@ -48,6 +51,7 @@ public final class InventoryGui {
         private final Component title;
         private final Map<Integer, ItemStack> items = new HashMap<>();
         private final Map<Integer, ClickHandler> handlers = new HashMap<>();
+        private final List<Consumer<Player>> closeHandlers = new ArrayList<>();
 
         private Builder(JavaPlugin plugin, int size, Component title) {
             this.plugin = Objects.requireNonNull(plugin, "plugin");
@@ -82,6 +86,17 @@ public final class InventoryGui {
         }
 
         /**
+         * Adds a callback that runs when a player closes the GUI.
+         *
+         * @param handler the close handler
+         * @return this builder
+         */
+        public Builder onClose(Consumer<Player> handler) {
+            closeHandlers.add(Objects.requireNonNull(handler, "handler"));
+            return this;
+        }
+
+        /**
          * Builds the GUI.
          *
          * @return the new GUI
@@ -98,21 +113,23 @@ public final class InventoryGui {
                 }
                 inventory.setItem(slot, entry.getValue());
             }
-            return new InventoryGui(plugin, inventory, Map.copyOf(handlers));
+            return new InventoryGui(plugin, inventory, Map.copyOf(handlers), List.copyOf(closeHandlers));
         }
     }
 
     private final JavaPlugin plugin;
     private final Inventory inventory;
     private final Map<Integer, ClickHandler> handlers;
+    private final List<Consumer<Player>> closeHandlers;
     private final ListenerRegistry listeners;
     private final Set<Player> viewers = Collections.newSetFromMap(new IdentityHashMap<>());
     private boolean registered;
 
-    private InventoryGui(JavaPlugin plugin, Inventory inventory, Map<Integer, ClickHandler> handlers) {
+    private InventoryGui(JavaPlugin plugin, Inventory inventory, Map<Integer, ClickHandler> handlers, List<Consumer<Player>> closeHandlers) {
         this.plugin = Objects.requireNonNull(plugin, "plugin");
         this.inventory = Objects.requireNonNull(inventory, "inventory");
         this.handlers = Objects.requireNonNull(handlers, "handlers");
+        this.closeHandlers = Objects.requireNonNull(closeHandlers, "closeHandlers");
         this.listeners = new ListenerRegistry(plugin);
     }
 
@@ -138,6 +155,29 @@ public final class InventoryGui {
         ensureListener();
         viewers.add(player);
         player.openInventory(inventory);
+    }
+
+    /**
+     * Updates an item in the GUI while it is open.
+     *
+     * @param slot the slot index
+     * @param item the item
+     */
+    public void setItem(int slot, ItemStack item) {
+        if (slot < 0 || slot >= inventory.getSize()) {
+            throw new IllegalArgumentException("slot " + slot + " is outside inventory size " + inventory.getSize());
+        }
+        inventory.setItem(slot, Objects.requireNonNull(item, "item"));
+    }
+
+    /**
+     * Returns the item currently in a slot.
+     *
+     * @param slot the slot index
+     * @return the item, or {@code null}
+     */
+    public ItemStack getItem(int slot) {
+        return inventory.getItem(slot);
     }
 
     /**
@@ -174,9 +214,14 @@ public final class InventoryGui {
                 if (event.getInventory() != inventory) {
                     return;
                 }
-                viewers.remove(event.getPlayer());
-                if (viewers.isEmpty()) {
-                    close();
+                if (event.getPlayer() instanceof Player closingPlayer) {
+                    viewers.remove(closingPlayer);
+                    if (viewers.isEmpty()) {
+                        close();
+                    }
+                    for (Consumer<Player> handler : closeHandlers) {
+                        handler.accept(closingPlayer);
+                    }
                 }
             });
         }
