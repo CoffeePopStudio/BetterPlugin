@@ -2,6 +2,17 @@
 
 Every release must be described here in plain, human-readable language. Readers should understand what changed without any programming or Java knowledge.
 
+## 26.12.0-mc26.1.2 - 2026-08-26
+
+- Added a standalone task scheduler helper that can cancel all of a plugin's tasks together.
+- Added a typed config wrapper with default values and a reload callback.
+- Added a small placeholder formatting utility.
+- Added an event listener helper for registering and unregistering listeners without boilerplate.
+- Added an item builder for creating items with names and lore.
+- Added a simple inventory GUI helper with automatic listener cleanup.
+- Added a shared registry for services and a module registry for enabling/disabling modules.
+- Tightened internal lifecycle and concurrency handling.
+
 ## 26.11.0-mc26.1.2 - 2026-08-26
 
 - Commands can now declare typed inputs (numbers, text, and more) and get player-name autocomplete without writing low-level details.
