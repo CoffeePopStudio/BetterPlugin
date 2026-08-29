@@ -24,6 +24,7 @@ public final class BukkitCommandAdapter extends Command {
      * @param aliases    the command aliases
      * @param permission the required permission, or {@code null} if none
      */
+    @ApiStatus.Internal
     public BukkitCommandAdapter(String name, List<String> aliases, String permission) {
         super(name, "BetterPlugin command", "/" + name, aliases);
         if (permission != null && !permission.isEmpty()) {
@@ -32,6 +33,7 @@ public final class BukkitCommandAdapter extends Command {
     }
 
     @Override
+    @ApiStatus.Internal
     public boolean execute(@NonNull CommandSender sender, @NonNull String commandLabel, String @NonNull [] args) {
         // Brigadier handles execution; this adapter is only for tab-completion metadata.
         return false;

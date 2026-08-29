@@ -26,7 +26,7 @@ public class BetterPlugin extends PluginBase {
         command()
                 .name("betterplugin")
                 .description("Shows BetterPlugin version information")
-                .executes((sender, command, label, args) -> {
+                .executes((sender, _, _, _) -> {
                     sender.sendPlainMessage("BetterPlugin " + getPluginMeta().getVersion());
                     sender.sendPlainMessage("A framework for building Paper plugins.");
                     return true;
@@ -39,10 +39,12 @@ public class BetterPlugin extends PluginBase {
         instance = null;
     }
 
+    @ApiStatus.Internal
     public static BetterPlugin getInstance() {
         return instance;
     }
 
+    @ApiStatus.Internal
     public CommandRegistry getCommandRegistry() {
         return commandRegistry;
     }
