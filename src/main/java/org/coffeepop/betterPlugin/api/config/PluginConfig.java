@@ -3,7 +3,9 @@ package org.coffeepop.betterPlugin.api.config;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.InputStream;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Small typed wrapper around a plugin's {@code config.yml}.
@@ -34,8 +36,8 @@ public final class PluginConfig {
      * @param reloadCallback code to run after {@link #reload()}
      */
     public PluginConfig(JavaPlugin plugin, Runnable reloadCallback) {
-        this.plugin = plugin;
-        this.reloadCallback = reloadCallback;
+        this.plugin = Objects.requireNonNull(plugin, "plugin");
+        this.reloadCallback = Objects.requireNonNull(reloadCallback, "reloadCallback");
     }
 
     /**
@@ -43,8 +45,12 @@ public final class PluginConfig {
      * callback.
      */
     public void reload() {
-        if (plugin.getResource("config.yml") != null) {
-            plugin.saveDefaultConfig();
+        try (InputStream ignored = plugin.getResource("config.yml")) {
+            if (ignored != null) {
+                plugin.saveDefaultConfig();
+            }
+        } catch (java.io.IOException e) {
+            throw new IllegalStateException("Failed to inspect config.yml resource", e);
         }
         plugin.reloadConfig();
         reloadCallback.run();
