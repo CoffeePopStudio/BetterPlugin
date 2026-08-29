@@ -254,6 +254,9 @@ public class CommandBuilderImpl implements CommandBuilder {
         if (!arguments.isEmpty() && argumentExecutor == null) {
             throw new CommandException("Arguments require an executor; set executes(CommandArgumentsExecutor)");
         }
+        if (!arguments.isEmpty() && !children.isEmpty()) {
+            throw new CommandException("Cannot mix argument(...) with then(...); use one style per command");
+        }
         if (context != null && context.getCommand() == null) {
             throw new CommandException("Command context does not contain an executor; provide a context built from a node with executes(...)");
         }

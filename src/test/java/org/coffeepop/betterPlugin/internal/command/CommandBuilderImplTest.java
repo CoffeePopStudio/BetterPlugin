@@ -155,6 +155,17 @@ class CommandBuilderImplTest {
     }
 
     @Test
+    void registerRejectsMixingArgumentsAndSubcommands() {
+        CommandBuilderImpl builder = new CommandBuilderImpl();
+        builder.name("cmd");
+        builder.argument("value", IntegerArgumentType.integer());
+        builder.then(LiteralArgumentBuilder.<CommandSourceStack>literal("sub"));
+        builder.arguments((sender, command, label, args) -> true);
+
+        assertThrows(CommandException.class, builder::register);
+    }
+
+    @Test
     void registerAddsCommandToRegistryAndExecutesIt() throws Exception {
         AtomicInteger executions = new AtomicInteger();
         CommandContext<CommandSourceStack> context = createContext("greet", executions);
