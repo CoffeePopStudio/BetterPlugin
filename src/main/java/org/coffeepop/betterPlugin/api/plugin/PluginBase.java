@@ -3,8 +3,11 @@ package org.coffeepop.betterPlugin.api.plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.coffeepop.betterPlugin.api.command.CommandBuilder;
+import org.coffeepop.betterPlugin.api.event.ListenerRegistry;
+import org.coffeepop.betterPlugin.api.registry.ModuleRegistry;
 import org.coffeepop.betterPlugin.api.registry.Registry;
 import org.coffeepop.betterPlugin.api.registry.SimpleRegistry;
+import org.coffeepop.betterPlugin.api.scheduler.TaskScheduler;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.io.InputStream;
@@ -24,6 +27,9 @@ public abstract class PluginBase extends JavaPlugin {
     private final List<BukkitTask> ownedTasks = new CopyOnWriteArrayList<>();
     private final List<Runnable> pendingWhenReady = new ArrayList<>();
     private final SimpleRegistry<Object> registry = new SimpleRegistry<>();
+    private final TaskScheduler taskScheduler = new TaskScheduler(this);
+    private final ListenerRegistry listenerRegistry = new ListenerRegistry(this);
+    private final ModuleRegistry moduleRegistry = new ModuleRegistry(this);
     private volatile boolean serverReady;
 
     @Override
@@ -52,6 +58,9 @@ public abstract class PluginBase extends JavaPlugin {
             task.cancel();
         }
         ownedTasks.clear();
+        taskScheduler.cancelAll();
+        listenerRegistry.unregisterAll();
+        moduleRegistry.disableAll();
         onPluginDisable();
     }
 
@@ -268,5 +277,35 @@ public abstract class PluginBase extends JavaPlugin {
     @SuppressWarnings("unchecked")
     protected <T> Registry<T> registry() {
         return (Registry<T>) registry;
+    }
+
+    /**
+     * Returns the plugin's shared {@link TaskScheduler}. Tasks created through
+     * it are cancelled automatically when the plugin is disabled.
+     *
+     * @return the shared scheduler
+     */
+    protected TaskScheduler tasks() {
+        return taskScheduler;
+    }
+
+    /**
+     * Returns the plugin's shared {@link ListenerRegistry}. Listeners are
+     * unregistered automatically when the plugin is disabled.
+     *
+     * @return the shared listener registry
+     */
+    protected ListenerRegistry listeners() {
+        return listenerRegistry;
+    }
+
+    /**
+     * Returns the plugin's shared {@link ModuleRegistry}. All enabled modules
+     * are disabled automatically when the plugin is disabled.
+     *
+     * @return the shared module registry
+     */
+    protected ModuleRegistry modules() {
+        return moduleRegistry;
     }
 }

@@ -1,8 +1,14 @@
 package org.coffeepop.betterPlugin.api.plugin;
 
 import org.bukkit.scheduler.BukkitTask;
+import net.kyori.adventure.text.Component;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.coffeepop.betterPlugin.api.command.CommandBuilder;
+import org.coffeepop.betterPlugin.api.event.ListenerRegistry;
+import org.coffeepop.betterPlugin.api.registry.ModuleRegistry;
+import org.coffeepop.betterPlugin.api.registry.PluginModule;
 import org.coffeepop.betterPlugin.api.registry.Registry;
+import org.coffeepop.betterPlugin.api.scheduler.TaskScheduler;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -87,6 +93,18 @@ class PluginBaseTest {
 
         Registry<String> exposedRegistry() {
             return registry();
+        }
+
+        TaskScheduler exposedTasks() {
+            return tasks();
+        }
+
+        ListenerRegistry exposedListeners() {
+            return listeners();
+        }
+
+        ModuleRegistry exposedModules() {
+            return modules();
         }
 
         void exposedSaveDefaultResource(String path) {
@@ -217,6 +235,48 @@ class PluginBaseTest {
         Registry<String> second = plugin.exposedRegistry();
 
         assertEquals("value", second.get("service").orElseThrow(), "registry() should return the same shared registry");
+    }
+
+    @Test
+    void sharedTasksAreCancelledOnDisable() {
+        BukkitTask task = plugin.exposedTasks().runSyncTimer(() -> {
+        }, 0L, 1L);
+
+        server.getScheduler().performTicks(1);
+        server.getPluginManager().disablePlugin(plugin);
+
+        assertTrue(task.isCancelled(), "tasks created through tasks() should be cancelled on disable");
+    }
+
+    @Test
+    void sharedListenersAreUnregisteredOnDisable() {
+        AtomicBoolean received = new AtomicBoolean();
+        plugin.exposedListeners().register(PlayerJoinEvent.class, event -> received.set(true));
+
+        server.getPluginManager().disablePlugin(plugin);
+        server.getPluginManager().callEvent(new PlayerJoinEvent(server.addPlayer(), Component.text("joined")));
+
+        assertFalse(received.get(), "listeners registered through listeners() should stop on disable");
+    }
+
+    @Test
+    void sharedModulesAreDisabledOnDisable() {
+        AtomicInteger disabled = new AtomicInteger();
+        plugin.exposedModules().register("test", new PluginModule() {
+            @Override
+            public void onEnable(org.bukkit.plugin.java.JavaPlugin plugin) {
+            }
+
+            @Override
+            public void onDisable() {
+                disabled.incrementAndGet();
+            }
+        });
+        plugin.exposedModules().enableAll();
+
+        server.getPluginManager().disablePlugin(plugin);
+
+        assertEquals(1, disabled.get(), "modules enabled through modules() should be disabled on disable");
     }
 
     @Test
