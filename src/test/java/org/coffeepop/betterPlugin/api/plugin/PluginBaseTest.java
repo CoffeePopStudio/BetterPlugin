@@ -2,6 +2,7 @@ package org.coffeepop.betterPlugin.api.plugin;
 
 import org.bukkit.scheduler.BukkitTask;
 import org.coffeepop.betterPlugin.api.command.CommandBuilder;
+import org.coffeepop.betterPlugin.api.registry.Registry;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -82,6 +83,10 @@ class PluginBaseTest {
 
         CommandBuilder exposedCommand() {
             return command();
+        }
+
+        Registry<String> exposedRegistry() {
+            return registry();
         }
 
         void exposedSaveDefaultResource(String path) {
@@ -202,6 +207,16 @@ class PluginBaseTest {
         CommandBuilder builder = plugin.exposedCommand();
 
         assertNotNull(builder, "command() should return a builder for the plugin");
+    }
+
+    @Test
+    void registryIsSharedAcrossCalls() {
+        Registry<String> first = plugin.exposedRegistry();
+        first.register("service", "value");
+
+        Registry<String> second = plugin.exposedRegistry();
+
+        assertEquals("value", second.get("service").orElseThrow(), "registry() should return the same shared registry");
     }
 
     @Test

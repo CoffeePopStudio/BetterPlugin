@@ -3,6 +3,8 @@ package org.coffeepop.betterPlugin.api.plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.coffeepop.betterPlugin.api.command.CommandBuilder;
+import org.coffeepop.betterPlugin.api.registry.Registry;
+import org.coffeepop.betterPlugin.api.registry.SimpleRegistry;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.io.InputStream;
@@ -21,6 +23,7 @@ public abstract class PluginBase extends JavaPlugin {
 
     private final List<BukkitTask> ownedTasks = new CopyOnWriteArrayList<>();
     private final List<Runnable> pendingWhenReady = new ArrayList<>();
+    private final SimpleRegistry<Object> registry = new SimpleRegistry<>();
     private volatile boolean serverReady;
 
     @Override
@@ -251,5 +254,19 @@ public abstract class PluginBase extends JavaPlugin {
      */
     protected CommandBuilder command() {
         return CommandBuilder.create(this);
+    }
+
+    /**
+     * Returns the plugin's shared thread-safe registry.
+     * <p>
+     * Use it to register services, handlers, or any value that other code in
+     * the plugin should be able to look up by name.
+     *
+     * @param <T> the value type
+     * @return the shared registry
+     */
+    @SuppressWarnings("unchecked")
+    protected <T> Registry<T> registry() {
+        return (Registry<T>) registry;
     }
 }
