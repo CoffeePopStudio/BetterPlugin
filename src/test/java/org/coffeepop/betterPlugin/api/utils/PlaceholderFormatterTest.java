@@ -27,4 +27,14 @@ class PlaceholderFormatterTest {
 
         assertEquals("Value: {value}", result);
     }
+
+    @Test
+    void insertedValuesAreNotReplacedAgain() {
+        String result = PlaceholderFormatter.format(
+                "{outer}",
+                Map.of("outer", "text {inner}", "inner", "INNER")
+        );
+
+        assertEquals("text {inner}", result, "values inserted by a placeholder must not be re-scanned");
+    }
 }

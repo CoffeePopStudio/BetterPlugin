@@ -1,13 +1,19 @@
 package org.coffeepop.betterPlugin.api.utils;
 
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Small placeholder formatting utility.
  * <p>
  * Replaces {@code {key}} occurrences in a template with values from a map.
+ * Replacement is single-pass: values inserted by one placeholder are never
+ * treated as placeholders themselves.
  */
 public final class PlaceholderFormatter {
+
+    private static final Pattern PLACEHOLDER = Pattern.compile("\\{([^{}]+)\\}");
 
     private PlaceholderFormatter() {
     }
@@ -21,10 +27,17 @@ public final class PlaceholderFormatter {
      * @return the formatted text
      */
     public static String format(String template, Map<String, String> values) {
-        String result = template;
-        for (Map.Entry<String, String> entry : values.entrySet()) {
-            result = result.replace("{" + entry.getKey() + "}", entry.getValue());
+        Matcher matcher = PLACEHOLDER.matcher(template);
+        StringBuilder result = new StringBuilder();
+        while (matcher.find()) {
+            String replacement = values.get(matcher.group(1));
+            if (replacement == null) {
+                matcher.appendReplacement(result, Matcher.quoteReplacement(matcher.group(0)));
+            } else {
+                matcher.appendReplacement(result, Matcher.quoteReplacement(replacement));
+            }
         }
-        return result;
+        matcher.appendTail(result);
+        return result.toString();
     }
 }
