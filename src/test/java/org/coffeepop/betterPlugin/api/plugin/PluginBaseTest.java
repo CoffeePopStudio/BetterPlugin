@@ -23,6 +23,7 @@ class PluginBaseTest {
 
     public static class TestPlugin extends PluginBase {
         final List<String> events = new ArrayList<>();
+        boolean configReloaded;
 
         @Override
         protected void onPluginEnable() {
@@ -32,6 +33,11 @@ class PluginBaseTest {
         @Override
         protected void onPluginDisable() {
             events.add("disable");
+        }
+
+        @Override
+        protected void onConfigReload() {
+            configReloaded = true;
         }
 
         java.util.logging.Logger exposedLog() {
@@ -80,6 +86,10 @@ class PluginBaseTest {
 
         void exposedSaveDefaultResource(String path) {
             saveDefaultResource(path);
+        }
+
+        void exposedReloadPluginConfig() {
+            reloadPluginConfig();
         }
     }
 
@@ -200,5 +210,12 @@ class PluginBaseTest {
 
         File file = new File(plugin.getDataFolder(), "test-resource.txt");
         assertTrue(file.isFile(), "resource should be copied into the plugin data folder");
+    }
+
+    @Test
+    void reloadPluginConfigInvokesCallback() {
+        plugin.exposedReloadPluginConfig();
+
+        assertTrue(plugin.configReloaded, "onConfigReload should run after reloadPluginConfig");
     }
 }

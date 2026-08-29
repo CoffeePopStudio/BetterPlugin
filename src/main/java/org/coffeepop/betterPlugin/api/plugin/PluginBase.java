@@ -141,6 +141,27 @@ public abstract class PluginBase extends JavaPlugin {
     }
 
     /**
+     * Reloads the plugin config and calls {@link #onConfigReload()}.
+     * <p>
+     * Defaults are re-applied only if the file is missing; user changes are
+     * kept.
+     */
+    protected void reloadPluginConfig() {
+        if (getResource("config.yml") != null) {
+            saveDefaultConfig();
+        }
+        reloadConfig();
+        onConfigReload();
+    }
+
+    /**
+     * Called after {@link #reloadPluginConfig()} has refreshed the config.
+     * Override this to rebuild settings or scheduled tasks.
+     */
+    protected void onConfigReload() {
+    }
+
+    /**
      * Runs a task on the main thread now. The returned task is owned by the
      * plugin and is cancelled automatically on disable.
      */
