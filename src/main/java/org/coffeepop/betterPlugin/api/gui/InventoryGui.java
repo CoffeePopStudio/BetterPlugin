@@ -3,19 +3,26 @@ package org.coffeepop.betterPlugin.api.gui;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.coffeepop.betterPlugin.api.event.ListenerRegistry;
 
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Minimal inventory GUI helper.
  * <p>
  * Create a GUI with {@link #builder(JavaPlugin, int, String)}, set items and
- * optional click handlers, then call {@link #open(Player)}.
+ * optional click handlers, then call {@link #open(Player)}. The internal click
+ * listener is registered lazily on first open and unregistered automatically
+ * when the last viewer closes the GUI.
  */
 public final class InventoryGui {
 
@@ -43,9 +50,9 @@ public final class InventoryGui {
         private final Map<Integer, ClickHandler> handlers = new HashMap<>();
 
         private Builder(JavaPlugin plugin, int size, Component title) {
-            this.plugin = plugin;
+            this.plugin = Objects.requireNonNull(plugin, "plugin");
             this.size = size;
-            this.title = title;
+            this.title = Objects.requireNonNull(title, "title");
         }
 
         /**
@@ -56,7 +63,7 @@ public final class InventoryGui {
          * @return this builder
          */
         public Builder item(int slot, ItemStack item) {
-            items.put(slot, item);
+            items.put(slot, Objects.requireNonNull(item, "item"));
             return this;
         }
 
@@ -69,8 +76,8 @@ public final class InventoryGui {
          * @return this builder
          */
         public Builder item(int slot, ItemStack item, ClickHandler handler) {
-            items.put(slot, item);
-            handlers.put(slot, handler);
+            items.put(slot, Objects.requireNonNull(item, "item"));
+            handlers.put(slot, Objects.requireNonNull(handler, "handler"));
             return this;
         }
 
@@ -80,9 +87,16 @@ public final class InventoryGui {
          * @return the new GUI
          */
         public InventoryGui build() {
+            if (size <= 0 || size % 9 != 0) {
+                throw new IllegalArgumentException("inventory size must be a positive multiple of 9");
+            }
             Inventory inventory = plugin.getServer().createInventory(null, size, title);
             for (Map.Entry<Integer, ItemStack> entry : items.entrySet()) {
-                inventory.setItem(entry.getKey(), entry.getValue());
+                int slot = entry.getKey();
+                if (slot < 0 || slot >= size) {
+                    throw new IllegalArgumentException("slot " + slot + " is outside inventory size " + size);
+                }
+                inventory.setItem(slot, entry.getValue());
             }
             return new InventoryGui(plugin, inventory, Map.copyOf(handlers));
         }
@@ -92,12 +106,13 @@ public final class InventoryGui {
     private final Inventory inventory;
     private final Map<Integer, ClickHandler> handlers;
     private final ListenerRegistry listeners;
+    private final Set<Player> viewers = Collections.newSetFromMap(new IdentityHashMap<>());
     private boolean registered;
 
     private InventoryGui(JavaPlugin plugin, Inventory inventory, Map<Integer, ClickHandler> handlers) {
-        this.plugin = plugin;
-        this.inventory = inventory;
-        this.handlers = handlers;
+        this.plugin = Objects.requireNonNull(plugin, "plugin");
+        this.inventory = Objects.requireNonNull(inventory, "inventory");
+        this.handlers = Objects.requireNonNull(handlers, "handlers");
         this.listeners = new ListenerRegistry(plugin);
     }
 
@@ -119,32 +134,51 @@ public final class InventoryGui {
      * @param player the player
      */
     public void open(Player player) {
+        Objects.requireNonNull(player, "player");
         ensureListener();
+        viewers.add(player);
         player.openInventory(inventory);
     }
 
     /**
-     * Unregisters the GUI's internal click listener.
+     * Unregisters the GUI's internal listeners and clears viewers.
      */
     public void close() {
-        listeners.unregisterAll();
-        registered = false;
+        synchronized (this) {
+            if (!registered) {
+                return;
+            }
+            registered = false;
+            listeners.unregisterAll();
+            viewers.clear();
+        }
     }
 
     private void ensureListener() {
-        if (registered) {
-            return;
-        }
-        registered = true;
-        listeners.register(InventoryClickEvent.class, event -> {
-            if (event.getClickedInventory() != inventory) {
+        synchronized (this) {
+            if (registered) {
                 return;
             }
-            event.setCancelled(true);
-            ClickHandler handler = handlers.get(event.getSlot());
-            if (handler != null) {
-                handler.onClick(event);
-            }
-        });
+            registered = true;
+            listeners.register(InventoryClickEvent.class, event -> {
+                if (event.getView().getTopInventory() != inventory) {
+                    return;
+                }
+                event.setCancelled(true);
+                ClickHandler handler = handlers.get(event.getSlot());
+                if (handler != null) {
+                    handler.onClick(event);
+                }
+            });
+            listeners.register(InventoryCloseEvent.class, event -> {
+                if (event.getInventory() != inventory) {
+                    return;
+                }
+                viewers.remove(event.getPlayer());
+                if (viewers.isEmpty()) {
+                    close();
+                }
+            });
+        }
     }
 }

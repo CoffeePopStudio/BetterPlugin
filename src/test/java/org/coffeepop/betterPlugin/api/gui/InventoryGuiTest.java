@@ -52,4 +52,18 @@ class InventoryGuiTest {
 
         assertDoesNotThrow(gui::close);
     }
+
+    @Test
+    void closeAndReopenRegistersListenerAgain() {
+        InventoryGui gui = InventoryGui.builder(plugin, 9, "Menu")
+                .item(0, new ItemStack(Material.DIAMOND))
+                .build();
+
+        gui.open(player);
+        gui.close();
+        assertDoesNotThrow(() -> gui.open(player));
+
+        ItemStack topItem = player.getOpenInventory().getTopInventory().getItem(0);
+        assertEquals(Material.DIAMOND, topItem.getType());
+    }
 }
