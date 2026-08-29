@@ -70,6 +70,7 @@ public class MyPlugin extends JavaPlugin {
 
 ## 进一步阅读
 
+- [模块](/zh/modules)
 - [命令 API 概览](/zh/command/)
 - [命令 API 快速上手](/zh/command/quick-start)
 - [插件基础](/zh/plugin)

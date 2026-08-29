@@ -70,6 +70,7 @@ You don't need to keep a `commands:` section in `plugin.yml`; the framework regi
 
 ## Further Reading
 
+- [Modules](/modules)
 - [Command API overview](/command/)
 - [Command API quick start](/command/quick-start)
 - [Plugin base](/plugin)

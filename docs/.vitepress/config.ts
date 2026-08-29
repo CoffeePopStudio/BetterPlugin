@@ -35,6 +35,7 @@ const enSidebar = [
   {
     text: 'Modules',
     items: [
+      { text: 'Overview', link: '/modules' },
       { text: 'Plugin entry', link: '/plugin' },
       {
         text: 'Commands',
@@ -70,6 +71,7 @@ const zhSidebar = [
   {
     text: '模块',
     items: [
+      { text: '概览', link: '/zh/modules' },
       { text: '插件入口', link: '/zh/plugin' },
       {
         text: '命令',
