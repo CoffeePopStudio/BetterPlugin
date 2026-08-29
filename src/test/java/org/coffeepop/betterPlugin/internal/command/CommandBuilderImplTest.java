@@ -844,6 +844,17 @@ class CommandBuilderImplTest {
         assertEquals(Component.text("[DENIED]"), player.nextComponentMessage());
     }
 
+    @Test
+    void betterPluginRegistersInfoCommand() {
+        PlayerMock player = server.addPlayer();
+
+        boolean success = server.dispatchCommand(player, "betterplugin");
+
+        assertTrue(success, "betterplugin command should be registered by BetterPlugin itself");
+        String message = PlainTextComponentSerializer.plainText().serialize(player.nextComponentMessage());
+        assertTrue(message.contains("BetterPlugin"), "info command should report the framework name, got: " + message);
+    }
+
     private CommandDispatcher<CommandSourceStack> registerAndGetDispatcher(CommandBuilder builder) {
         builder.register();
         CommandRegistry registry = plugin.getCommandRegistry();

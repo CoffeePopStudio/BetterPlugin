@@ -22,6 +22,16 @@ public class BetterPlugin extends PluginBase {
                 LifecycleEvents.COMMANDS,
                 event -> commandRegistry.registerAll(event.registrar())
         );
+
+        command()
+                .name("betterplugin")
+                .description("Shows BetterPlugin version information")
+                .executes((sender, command, label, args) -> {
+                    sender.sendPlainMessage("BetterPlugin " + getPluginMeta().getVersion());
+                    sender.sendPlainMessage("A framework for building Paper plugins.");
+                    return true;
+                })
+                .register();
     }
 
     @Override
