@@ -2,6 +2,12 @@
 
 Every release must be described here in plain, human-readable language. Readers should understand what changed without any programming or Java knowledge.
 
+## 26.13.0-mc26.1.2 - 2026-08-26
+
+- Plugins that use the shared starting point no longer need to clean up tasks, listeners, or modules by hand; it is done automatically when the plugin is disabled.
+- Inventory GUIs now support close callbacks and updating items while the GUI is open.
+- Command arguments now support dynamic tab-completion suggestions based on the command sender.
+
 ## 26.12.0-mc26.1.2 - 2026-08-26
 
 - Added a standalone task scheduler helper that can cancel all of a plugin's tasks together.
