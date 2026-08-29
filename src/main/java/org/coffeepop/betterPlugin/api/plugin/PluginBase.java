@@ -3,7 +3,9 @@ package org.coffeepop.betterPlugin.api.plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.coffeepop.betterPlugin.api.command.CommandBuilder;
+import org.jetbrains.annotations.ApiStatus;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -54,6 +56,7 @@ public abstract class PluginBase extends JavaPlugin {
      * Called when the plugin is enabled. Override this instead of
      * {@code onEnable()}.
      */
+    @ApiStatus.OverrideOnly
     protected void onPluginEnable() {
     }
 
@@ -61,6 +64,7 @@ public abstract class PluginBase extends JavaPlugin {
      * Called when the plugin is disabled. Override this instead of
      * {@code onDisable()}.
      */
+    @ApiStatus.OverrideOnly
     protected void onPluginDisable() {
     }
 
@@ -147,8 +151,12 @@ public abstract class PluginBase extends JavaPlugin {
      * kept.
      */
     protected void reloadPluginConfig() {
-        if (getResource("config.yml") != null) {
-            saveDefaultConfig();
+        try (InputStream ignored = getResource("config.yml")) {
+            if (ignored != null) {
+                saveDefaultConfig();
+            }
+        } catch (java.io.IOException e) {
+            throw new IllegalStateException("Failed to inspect config.yml resource", e);
         }
         reloadConfig();
         onConfigReload();
