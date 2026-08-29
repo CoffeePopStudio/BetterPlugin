@@ -57,4 +57,14 @@ class TaskSchedulerTest {
         scheduler.cancelAll();
         assertTrue(task.isCancelled(), "finished one-shot tasks should be cancelled/cleared");
     }
+
+    @Test
+    void tasksScheduledAfterCancelAllAreCancelledImmediately() {
+        scheduler.cancelAll();
+
+        BukkitTask task = scheduler.runSync(() -> {
+        });
+
+        assertTrue(task.isCancelled(), "scheduler is closed after cancelAll, so new tasks must not run");
+    }
 }
