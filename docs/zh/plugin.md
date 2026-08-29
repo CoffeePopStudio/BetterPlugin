@@ -64,6 +64,7 @@ public final class MyPlugin extends PluginBase {
 | `isServerReady` / `runWhenReady` | 在服务器启动完成后执行代码 |
 | `reloadPluginConfig` / `onConfigReload` | 重新加载 `config.yml`，并通过回调重建配置/任务 |
 | `command()` | `CommandBuilder.create(this)` 的快捷方式 |
+| `registry()` | 共享的线程安全注册表，用于服务/处理器 |
 
 ## 与 JavaPlugin 的关系
 

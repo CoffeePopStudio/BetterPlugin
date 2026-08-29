@@ -71,6 +71,27 @@ gui.open(player);
 // 最后一个玩家关闭 GUI 后，内部监听器会自动移除。
 ```
 
+## Registry
+
+```java
+// 独立使用：
+Registry<String> services = new SimpleRegistry<>();
+services.register("storage", "file");
+
+// 继承 PluginBase 时，可以直接用共享 registry：
+registry().register("storage", new Storage());
+registry().get("storage").ifPresent(storage -> storage.load());
+```
+
+模块可以用 `ModuleRegistry` 管理：
+
+```java
+ModuleRegistry modules = new ModuleRegistry(this);
+modules.register("backup", new BackupModule());
+modules.enable("backup");
+modules.disableAll(); // 会调用每个已启用模块的 onDisable
+```
+
 ## 相关页面
 
 - [插件入口](/zh/plugin)

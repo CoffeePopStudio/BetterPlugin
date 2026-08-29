@@ -64,6 +64,7 @@ public final class MyPlugin extends PluginBase {
 | `isServerReady` / `runWhenReady` | Runs code once the server has finished starting |
 | `reloadPluginConfig` / `onConfigReload` | Reloads `config.yml` and runs a callback for rebuilding settings |
 | `command()` | Shortcut for `CommandBuilder.create(this)` |
+| `registry()` | Shared thread-safe registry for services and handlers |
 
 ## Relationship to JavaPlugin
 

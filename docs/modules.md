@@ -71,6 +71,27 @@ gui.open(player);
 // The internal listener is removed automatically when the last viewer closes.
 ```
 
+## Registry
+
+```java
+// Standalone:
+Registry<String> services = new SimpleRegistry<>();
+services.register("storage", "file");
+
+// Inside PluginBase, a shared registry is already available:
+registry().register("storage", new Storage());
+registry().get("storage").ifPresent(storage -> storage.load());
+```
+
+Modules can be managed with `ModuleRegistry`:
+
+```java
+ModuleRegistry modules = new ModuleRegistry(this);
+modules.register("backup", new BackupModule());
+modules.enable("backup");
+modules.disableAll(); // calls onDisable on every enabled module
+```
+
 ## Related Pages
 
 - [Plugin entry](/plugin)
