@@ -7,6 +7,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Fluent builder for creating {@link ItemStack}s with display names and lore.
@@ -19,7 +20,7 @@ public final class ItemBuilder {
     private List<Component> lore = new ArrayList<>();
 
     private ItemBuilder(Material material) {
-        this.material = material;
+        this.material = Objects.requireNonNull(material, "material");
     }
 
     /**
@@ -39,6 +40,9 @@ public final class ItemBuilder {
      * @return this builder
      */
     public ItemBuilder amount(int amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("amount must be positive");
+        }
         this.amount = amount;
         return this;
     }
@@ -50,7 +54,7 @@ public final class ItemBuilder {
      * @return this builder
      */
     public ItemBuilder name(String name) {
-        return name(Component.text(name));
+        return name(Component.text(Objects.requireNonNull(name, "name")));
     }
 
     /**
@@ -60,7 +64,7 @@ public final class ItemBuilder {
      * @return this builder
      */
     public ItemBuilder name(Component name) {
-        this.displayName = name;
+        this.displayName = Objects.requireNonNull(name, "name");
         return this;
     }
 
@@ -72,7 +76,7 @@ public final class ItemBuilder {
      */
     public ItemBuilder lore(String... lines) {
         for (String line : lines) {
-            lore.add(Component.text(line));
+            lore.add(Component.text(Objects.requireNonNull(line, "line")));
         }
         return this;
     }
@@ -85,7 +89,7 @@ public final class ItemBuilder {
      */
     public ItemBuilder lore(List<String> lines) {
         for (String line : lines) {
-            lore.add(Component.text(line));
+            lore.add(Component.text(Objects.requireNonNull(line, "line")));
         }
         return this;
     }
