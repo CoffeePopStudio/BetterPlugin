@@ -223,6 +223,15 @@ public interface CommandBuilder {
     CommandBuilder suggestions(Collection<String> values);
 
     /**
+     * Adds dynamic tab-completion suggestions to the most recent argument.
+     * The provider receives the command sender and returns the suggestion list.
+     *
+     * @param provider the suggestion provider
+     * @return this builder, for chaining
+     */
+    CommandBuilder suggest(Function<CommandSender, Collection<String>> provider);
+
+    /**
      * Adds the names of all online players as tab-completion suggestions to
      * the most recent argument.
      *

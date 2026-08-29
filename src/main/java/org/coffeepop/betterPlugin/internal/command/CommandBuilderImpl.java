@@ -159,6 +159,12 @@ public class CommandBuilderImpl implements CommandBuilder {
     }
 
     @Override
+    public CommandBuilderImpl suggest(Function<CommandSender, Collection<String>> provider) {
+        requireLastArgument().setSuggestionProvider(source -> provider.apply(source.getSender()));
+        return this;
+    }
+
+    @Override
     public CommandBuilderImpl suggestOnlinePlayers() {
         requireLastArgument().setSuggestionProvider(source -> source.getSender().getServer().getOnlinePlayers().stream()
                 .map(Player::getName)

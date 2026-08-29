@@ -775,6 +775,24 @@ class CommandBuilderImplTest {
     }
 
     @Test
+    void dynamicSuggestionsUseSender() throws Exception {
+        PlayerMock player = server.addPlayer("alice");
+
+        CommandBuilder builder = CommandBuilder.create()
+                .name("echo")
+                .argument("value", com.mojang.brigadier.arguments.StringArgumentType.word())
+                .suggest(sender -> List.of(sender.getName() + "-suggestion"))
+                .arguments((sender, command, label, args) -> true);
+
+        CommandDispatcher<CommandSourceStack> dispatcher = registerAndGetDispatcher(builder);
+        CommandSourceStack source = CommandSourceStackMock.from(player);
+        Suggestions suggestions = dispatcher.getCompletionSuggestions(dispatcher.parse("echo ", source)).join();
+
+        List<String> texts = suggestions.getList().stream().map(Suggestion::getText).toList();
+        assertTrue(texts.contains("alice-suggestion"), "dynamic suggestion should use the command sender");
+    }
+
+    @Test
     void optionalArgumentAllowsRootExecution() throws Exception {
         AtomicReference<String> seen = new AtomicReference<>();
 
