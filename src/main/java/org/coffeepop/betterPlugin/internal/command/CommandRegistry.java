@@ -61,11 +61,11 @@ public class CommandRegistry {
      * @param description the command description, or {@code null}
      */
     public void addCommand(Function<Commands, LiteralArgumentBuilder<CommandSourceStack>> supplier, List<String> aliases, JavaPlugin owner, String description) {
-        if (commandsEventFired) {
-            warnTooLate();
-            return;
-        }
         synchronized (registrations) {
+            if (commandsEventFired) {
+                warnTooLate();
+                return;
+            }
             registrations.add(new Registration(
                     supplier,
                     aliases == null ? List.of() : List.copyOf(aliases),
@@ -83,9 +83,9 @@ public class CommandRegistry {
      * @param commands the Paper command registrar
      */
     public void registerAll(Commands commands) {
-        commandsEventFired = true;
         List<Registration> pending;
         synchronized (registrations) {
+            commandsEventFired = true;
             pending = List.copyOf(registrations);
             registrations.clear();
         }
