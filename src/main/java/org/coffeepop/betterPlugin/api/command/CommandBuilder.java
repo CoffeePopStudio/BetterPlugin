@@ -1,15 +1,20 @@
 package org.coffeepop.betterPlugin.api.command;
 
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import org.bukkit.command.CommandExecutor;
+import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.coffeepop.betterPlugin.internal.command.CommandBuilderImpl;
 
 import java.time.Duration;
+import java.util.Collection;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * Fluent builder for registering Paper Brigadier commands.
@@ -186,6 +191,90 @@ public interface CommandBuilder {
      * @return this builder, for chaining
      */
     CommandBuilder executes(CommandExecutor executor);
+
+    /**
+     * Adds a typed argument to the command.
+     * <p>
+     * Arguments are chained in declaration order. Use
+     * {@link #suggestions(String...)} or {@link #suggestOnlinePlayers()} to add
+     * tab completion for the most recent argument, and
+     * {@link #optional()} to make the final argument optional.
+     *
+     * @param name the argument name, used by {@link CommandArguments}
+     * @param type the Brigadier argument type
+     * @return this builder, for chaining
+     */
+    CommandBuilder argument(String name, ArgumentType<?> type);
+
+    /**
+     * Adds static tab-completion suggestions to the most recent argument.
+     *
+     * @param values the suggestion values
+     * @return this builder, for chaining
+     */
+    CommandBuilder suggestions(String... values);
+
+    /**
+     * Adds static tab-completion suggestions to the most recent argument.
+     *
+     * @param values the suggestion values
+     * @return this builder, for chaining
+     */
+    CommandBuilder suggestions(Collection<String> values);
+
+    /**
+     * Adds the names of all online players as tab-completion suggestions to
+     * the most recent argument.
+     *
+     * @return this builder, for chaining
+     */
+    CommandBuilder suggestOnlinePlayers();
+
+    /**
+     * Makes the final argument optional. Must be called after
+     * {@link #argument(String, ArgumentType)} and before adding another
+     * argument.
+     *
+     * @return this builder, for chaining
+     */
+    CommandBuilder optional();
+
+    /**
+     * Sets an executor that receives typed arguments.
+     * <p>
+     * This overload is only valid when the command declares at least one
+     * {@link #argument(String, ArgumentType)}.
+     *
+     * @param executor the argument executor
+     * @return this builder, for chaining
+     */
+    CommandBuilder arguments(CommandArgumentsExecutor executor);
+
+    /**
+     * Registers a custom placeholder resolver used when formatting command
+     * messages such as permission and cooldown messages.
+     * <p>
+     * The resolver receives the command sender and returns the replacement
+     * text. Built-in placeholders include {@code {player}} and, for cooldown
+     * messages, {@code {cooldown}}.
+     *
+     * @param key      the placeholder name without braces, e.g. {@code "prefix"}
+     * @param resolver the resolver producing the replacement text
+     * @return this builder, for chaining
+     */
+    CommandBuilder placeholder(String key, Function<CommandSender, String> resolver);
+
+    /**
+     * Replaces the default message formatting logic entirely.
+     * <p>
+     * The formatter receives the raw message template and the command sender,
+     * and returns the final text. When not set, built-in and custom
+     * placeholders are replaced by the default formatter.
+     *
+     * @param formatter the message formatter
+     * @return this builder, for chaining
+     */
+    CommandBuilder messageFormatter(BiFunction<String, CommandSender, String> formatter);
 
     /**
      * Sets a Bukkit {@link TabCompleter} used for argument tab completion.

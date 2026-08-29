@@ -2,6 +2,7 @@ package org.coffeepop.betterPlugin.internal.command;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
@@ -9,6 +10,7 @@ import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -721,6 +723,125 @@ class CommandBuilderImplTest {
         assertEquals(1, contextExecutions.get());
         assertEquals(0, rawExecutions.get());
         assertEquals(0, bukkitExecutions.get());
+    }
+
+    @Test
+    void argumentsExecutorReceivesTypedValues() throws Exception {
+        AtomicInteger sum = new AtomicInteger();
+
+        CommandBuilder builder = CommandBuilder.create()
+                .name("sum")
+                .argument("left", IntegerArgumentType.integer())
+                .argument("right", IntegerArgumentType.integer())
+                .arguments((sender, command, label, args) -> {
+                    sum.set(args.getInt("left") + args.getInt("right"));
+                    return true;
+                });
+
+        CommandDispatcher<CommandSourceStack> dispatcher = registerAndGetDispatcher(builder);
+        CommandSourceStack source = CommandSourceStackMock.from(server.getConsoleSender());
+        int result = assertDoesNotThrow(() -> dispatcher.execute("sum 20 22", source));
+
+        assertEquals(1, result);
+        assertEquals(42, sum.get());
+    }
+
+    @Test
+    void argumentSuggestionsAreProvided() throws Exception {
+        CommandBuilder builder = CommandBuilder.create()
+                .name("pick")
+                .argument("color", com.mojang.brigadier.arguments.StringArgumentType.word())
+                .suggestions("red", "blue")
+                .arguments((sender, command, label, args) -> true);
+
+        CommandDispatcher<CommandSourceStack> dispatcher = registerAndGetDispatcher(builder);
+        CommandSourceStack source = CommandSourceStackMock.from(server.getConsoleSender());
+        Suggestions suggestions = dispatcher.getCompletionSuggestions(dispatcher.parse("pick ", source)).join();
+
+        List<String> texts = suggestions.getList().stream().map(Suggestion::getText).toList();
+        assertTrue(texts.contains("red"));
+        assertTrue(texts.contains("blue"));
+    }
+
+    @Test
+    void optionalArgumentAllowsRootExecution() throws Exception {
+        AtomicReference<String> seen = new AtomicReference<>();
+
+        CommandBuilder builder = CommandBuilder.create()
+                .name("warp")
+                .argument("name", com.mojang.brigadier.arguments.StringArgumentType.word())
+                .suggestions("home", "spawn")
+                .optional()
+                .arguments((sender, command, label, args) -> {
+                    seen.set(args.contains("name") ? args.getString("name") : "home");
+                    return true;
+                });
+
+        CommandDispatcher<CommandSourceStack> dispatcher = registerAndGetDispatcher(builder);
+        CommandSourceStack source = CommandSourceStackMock.from(server.getConsoleSender());
+
+        assertDoesNotThrow(() -> dispatcher.execute("warp", source));
+        assertEquals("home", seen.get());
+
+        assertDoesNotThrow(() -> dispatcher.execute("warp spawn", source));
+        assertEquals("spawn", seen.get());
+    }
+
+    @Test
+    void suggestOnlinePlayersProvidesPlayerNames() throws Exception {
+        server.addPlayer("alice");
+
+        CommandBuilder builder = CommandBuilder.create()
+                .name("msg")
+                .argument("target", com.mojang.brigadier.arguments.StringArgumentType.word())
+                .suggestOnlinePlayers()
+                .arguments((sender, command, label, args) -> true);
+
+        CommandDispatcher<CommandSourceStack> dispatcher = registerAndGetDispatcher(builder);
+        CommandSourceStack source = CommandSourceStackMock.from(server.getConsoleSender());
+        Suggestions suggestions = dispatcher.getCompletionSuggestions(dispatcher.parse("msg ", source)).join();
+
+        List<String> texts = suggestions.getList().stream().map(Suggestion::getText).toList();
+        assertTrue(texts.contains("alice"));
+    }
+
+    @Test
+    void customPlaceholderIsUsedInCooldownMessage() throws Exception {
+        PlayerMock player = server.addPlayer();
+
+        CommandBuilder builder = CommandBuilder.create()
+                .name("cd")
+                .cooldown(Duration.ofSeconds(60))
+                .cooldownMessage("{prefix} wait {cooldown}")
+                .placeholder("prefix", sender -> "[X] ")
+                .executes((sender, command, label, args) -> true);
+
+        CommandDispatcher<CommandSourceStack> dispatcher = registerAndGetDispatcher(builder);
+        CommandSourceStack source = CommandSourceStackMock.from(player);
+
+        assertDoesNotThrow(() -> dispatcher.execute("cd", source));
+        assertDoesNotThrow(() -> dispatcher.execute("cd", source));
+
+        String message = PlainTextComponentSerializer.plainText().serialize(player.nextComponentMessage());
+        assertTrue(message.startsWith("[X]") && message.contains("wait"), "custom prefix should be formatted, got: " + message);
+    }
+
+    @Test
+    void messageFormatterOverridesFormatting() throws Exception {
+        PlayerMock player = server.addPlayer();
+
+        CommandBuilder builder = CommandBuilder.create()
+                .name("fmt")
+                .permission("test.fmt")
+                .permissionMessage("denied")
+                .messageFormatter((template, sender) -> "[" + template.toUpperCase() + "]")
+                .executes((sender, command, label, args) -> true);
+
+        CommandDispatcher<CommandSourceStack> dispatcher = registerAndGetDispatcher(builder);
+        CommandSourceStack source = CommandSourceStackMock.from(player);
+
+        assertThrows(CommandSyntaxException.class, () -> dispatcher.execute("fmt", source));
+        assertEquals(Component.text("[DENIED]"), player.nextComponentMessage());
     }
 
     private CommandDispatcher<CommandSourceStack> registerAndGetDispatcher(CommandBuilder builder) {
