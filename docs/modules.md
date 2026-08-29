@@ -47,7 +47,8 @@ public final class MyPlugin extends JavaPlugin {
 
 ### Practical notes
 
-- **Always call `cancelAll()` on plugin disable.** If you don't, repeating tasks keep running after your plugin is disabled.
+- **If you extend `PluginBase`, use `tasks()` instead of creating a `TaskScheduler` yourself.** It is cancelled automatically on plugin disable.
+- **Always call `cancelAll()` on plugin disable** when you create a standalone scheduler. If you don't, repeating tasks keep running after your plugin is disabled.
 - **`cancelAll()` closes the scheduler.** After calling it, any task created through the same scheduler is cancelled immediately. Create a new `TaskScheduler` if you need to schedule again after a reload.
 - **Background tasks must not touch Bukkit API that requires the main thread.** For example, opening inventories, modifying worlds, or sending packets usually must happen on the main thread. Use `runSync`/`runSyncTimer` for those.
 - **Task callbacks run on whatever thread the scheduler picks.** Keep data shared between threads in thread-safe containers or synchronize explicitly.
@@ -153,7 +154,8 @@ public final class MyPlugin extends JavaPlugin {
 
 ### Practical notes
 
-- **Call `unregisterAll()` on plugin disable.** Otherwise handlers keep firing for a disabled plugin.
+- **If you extend `PluginBase`, use `listeners()` instead of creating a `ListenerRegistry` yourself.** It is unregistered automatically on plugin disable.
+- **Call `unregisterAll()` on plugin disable** when you use a standalone registry. Otherwise handlers keep firing for a disabled plugin.
 - **Handlers run on the thread that fired the event.** Most Bukkit events fire on the main thread, but async events (for example, async chat/player login events) do not. Check the event's documentation before touching shared state.
 - **Do not run long work inside an event handler.** If you need to save data or call a web service, schedule it with `TaskScheduler.runAsync` and return quickly.
 - **`ListenerRegistry` is reusable.** After `unregisterAll()` you can register new handlers again; it creates a fresh internal listener.
@@ -208,12 +210,22 @@ InventoryGui gui = InventoryGui.builder(this, 9, "Menu")
 
 // Open for a player.
 gui.open(player);
+
+// Later, update an item while the GUI is open.
+gui.setItem(0, ItemBuilder.of(Material.EMERALD).name("Changed").build());
+
+// Close callback example:
+InventoryGui withClose = InventoryGui.builder(this, 9, "Menu")
+        .onClose(p -> p.sendPlainMessage("Menu closed"))
+        .build();
 ```
 
 ### Practical notes
 
 - **All clicks in the GUI view are cancelled**, including clicks in the player's bottom inventory while the GUI is open. This keeps the menu read-only.
 - **The internal click listener is registered lazily on first `open()`.** It is automatically unregistered when the **last viewer closes** the GUI. You do not normally need to call `close()`.
+- **`onClose(Consumer<Player>)` adds a callback that runs each time a player closes the GUI.**
+- **`setItem(int, ItemStack)` updates a slot while the GUI is open.**
 - **Calling `close()` manually is safe.** It unregisters listeners and clears viewers; the GUI can be reopened later and the listener is re-registered.
 - **Click handlers run on the main thread** (inventory events are main-thread events). Do not block there.
 - **The handler receives the event after it is already cancelled.** You can still read slot, click type, and player from it.
@@ -282,6 +294,7 @@ public final class MyPlugin extends JavaPlugin {
 
 ### Practical notes
 
+- **If you extend `PluginBase`, use `modules()` instead of creating a `ModuleRegistry` yourself.** It is disabled automatically on plugin disable.
 - **Registry operations are thread-safe.** You can register and read from async tasks.
 - **`register(...)` replaces an existing value with the same key.** Use unique keys to avoid accidental overwrites.
 - **`enable(...)` is idempotent.** Enabling an already-enabled module does not call `onEnable` again.

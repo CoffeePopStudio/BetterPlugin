@@ -52,6 +52,7 @@ CommandBuilder builder = CommandBuilder.create(this);
 | `argument(String name, ArgumentType type)` | Configuration | Adds a typed argument |
 | `suggestions(String... values)` | Configuration | Adds static tab-completion suggestions to the latest argument |
 | `suggestOnlinePlayers()` | Configuration | Adds online player names as suggestions to the latest argument |
+| `suggest(Function)` | Configuration | Adds dynamic suggestions computed from the command sender |
 | `optional()` | Configuration | Makes the latest argument optional (must be the last argument) |
 | `then(ArgumentBuilder)` | Configuration | Adds a subcommand / child node (after adding, `tabCompleter` no longer applies) |
 | `context(CommandContext)` | Executor | Reuses a command from an existing Brigadier context |
@@ -134,6 +135,7 @@ CommandBuilder.create(this)
 ```
 
 - `suggestions(...)` adds static tab-completion values to the latest argument
+- `suggest(provider)` adds dynamic suggestions computed from the command sender
 - `suggestOnlinePlayers()` suggests online player names
 - `optional()` makes the latest argument optional; `args.contains("name")` tells you whether it was provided
 - `CommandArguments` provides `getString`, `getInt`, `getDouble`, `getBoolean`, and `contains`

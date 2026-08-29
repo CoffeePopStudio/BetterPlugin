@@ -52,6 +52,7 @@ CommandBuilder builder = CommandBuilder.create(this);
 | `argument(String name, ArgumentType type)` | 配置 | 添加一个带类型的参数 |
 | `suggestions(String... values)` | 配置 | 给最近的参数添加静态补全 |
 | `suggestOnlinePlayers()` | 配置 | 给最近的参数添加在线玩家名补全 |
+| `suggest(Function)` | 配置 | 根据命令发送者动态计算补全 |
 | `optional()` | 配置 | 让最近的参数变为可选（必须是最后一个参数） |
 | `then(ArgumentBuilder)` | 配置 | 添加子命令/子节点（添加后 `tabCompleter` 不生效） |
 | `context(CommandContext)` | 执行器 | 复用已有 Brigadier Context 中的 Command |
@@ -134,6 +135,7 @@ CommandBuilder.create(this)
 ```
 
 - `suggestions(...)` 给最近的参数添加静态补全
+- `suggest(provider)` 根据命令发送者动态计算补全
 - `suggestOnlinePlayers()` 自动补全在线玩家名
 - `optional()` 让最近的参数变为可选；`args.contains("name")` 判断是否提供
 - `CommandArguments` 提供 `getString`、`getInt`、`getDouble`、`getBoolean`、`contains`

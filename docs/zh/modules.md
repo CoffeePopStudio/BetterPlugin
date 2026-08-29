@@ -47,7 +47,8 @@ public final class MyPlugin extends JavaPlugin {
 
 ### 实际开发注意
 
-- **插件卸载时一定要调用 `cancelAll()`。** 否则重复任务会在插件禁用后继续运行。
+- **如果继承 `PluginBase`，请用 `tasks()`，不要自己 new `TaskScheduler`。** 插件卸载时会自动取消。
+- **插件卸载时一定要调用 `cancelAll()`**（独立创建 scheduler 时）。否则重复任务会在插件禁用后继续运行。
 - **`cancelAll()` 之后 scheduler 就关闭了。** 之后再通过同一个 scheduler 创建的任务会立即被取消；需要重新调度时请 new 一个新的 `TaskScheduler`。
 - **后台任务不能碰必须主线程执行的 Bukkit API。** 例如打开背包、修改世界、发送包等通常必须在主线程。这类操作请用 `runSync` / `runSyncTimer`。
 - **任务回调在调度器选择的线程上运行。** 多线程共享数据请使用线程安全容器或自行加锁。
@@ -153,7 +154,8 @@ public final class MyPlugin extends JavaPlugin {
 
 ### 实际开发注意
 
-- **插件卸载时调用 `unregisterAll()`。** 否则禁用插件后处理器仍会触发。
+- **如果继承 `PluginBase`，请用 `listeners()`，不要自己 new `ListenerRegistry`。** 插件卸载时会自动注销。
+- **插件卸载时调用 `unregisterAll()`**（独立创建 registry 时）。否则禁用插件后处理器仍会触发。
 - **处理器运行在事件触发的线程上。** 大多数 Bukkit 事件在主线程，但异步事件（例如异步聊天/登录事件）不是。修改共享状态前先确认事件线程。
 - **不要在事件处理器里做耗时操作。** 需要保存数据或请求网络时，用 `TaskScheduler.runAsync` 调度并尽快返回。
 - **`ListenerRegistry` 可复用。** `unregisterAll()` 之后还能继续注册新处理器。
@@ -208,12 +210,22 @@ InventoryGui gui = InventoryGui.builder(this, 9, "菜单")
 
 // 给玩家打开。
 gui.open(player);
+
+// 之后可以在 GUI 打开时动态更新物品。
+gui.setItem(0, ItemBuilder.of(Material.EMERALD).name("已改变").build());
+
+// 关闭回调示例：
+InventoryGui withClose = InventoryGui.builder(this, 9, "菜单")
+        .onClose(p -> p.sendPlainMessage("菜单已关闭"))
+        .build();
 ```
 
 ### 实际开发注意
 
 - **GUI 视图内所有点击都会被取消**，包括 GUI 打开时玩家底部背包里的点击。菜单是只读的。
 - **内部点击监听器在第一次 `open()` 时懒注册。** 最后一个查看者关闭 GUI 后会自动注销，通常不需要手动调用 `close()`。
+- **`onClose(Consumer<Player>)` 添加关闭回调，每个玩家关闭 GUI 时都会触发。**
+- **`setItem(int, ItemStack)` 可在 GUI 打开时更新槽位。**
 - **手动调用 `close()` 也是安全的。** 它会注销监听器并清空查看者；之后还能重新 `open()`。
 - **点击处理器运行在主线程**（背包事件是主线程事件），不要在里面阻塞。
 - **处理器收到的事件已经是被取消的。** 你仍然可以读槽位、点击类型和玩家。
@@ -282,6 +294,7 @@ public final class MyPlugin extends JavaPlugin {
 
 ### 实际开发注意
 
+- **如果继承 `PluginBase`，请用 `modules()`，不要自己 new `ModuleRegistry`。** 插件卸载时会自动禁用。
 - **Registry 操作是线程安全的。** 可以在异步任务里注册和读取。
 - **`register(...)` 会覆盖同 key 的旧值。** 使用唯一且稳定的 key 避免误覆盖。
 - **`enable(...)` 是幂等的。** 重复启用已启用模块不会再次调用 `onEnable`。

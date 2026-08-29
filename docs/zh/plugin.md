@@ -65,6 +65,9 @@ public final class MyPlugin extends PluginBase {
 | `reloadPluginConfig` / `onConfigReload` | 重新加载 `config.yml`，并通过回调重建配置/任务 |
 | `command()` | `CommandBuilder.create(this)` 的快捷方式 |
 | `registry()` | 共享的线程安全注册表，用于服务/处理器 |
+| `tasks()` | 共享调度器；卸载时自动取消任务 |
+| `listeners()` | 共享事件监听注册表；卸载时自动注销 |
+| `modules()` | 共享模块注册表；卸载时自动禁用已启用模块 |
 
 ## 与 JavaPlugin 的关系
 

@@ -65,6 +65,9 @@ public final class MyPlugin extends PluginBase {
 | `reloadPluginConfig` / `onConfigReload` | Reloads `config.yml` and runs a callback for rebuilding settings |
 | `command()` | Shortcut for `CommandBuilder.create(this)` |
 | `registry()` | Shared thread-safe registry for services and handlers |
+| `tasks()` | Shared scheduler; tasks are cancelled automatically on disable |
+| `listeners()` | Shared event listener registry; listeners are unregistered automatically on disable |
+| `modules()` | Shared module registry; enabled modules are disabled automatically on disable |
 
 ## Relationship to JavaPlugin
 
