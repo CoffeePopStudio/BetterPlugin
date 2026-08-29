@@ -8,6 +8,8 @@ The command module lives in the `org.coffeepop.betterPlugin.api.command` package
 import org.bukkit.plugin.java.JavaPlugin;
 import org.coffeepop.betterPlugin.api.command.CommandBuilder;
 import io.papermc.paper.command.brigadier.Commands; // Required for the subcommand example
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import java.time.Duration;                          // Required for the cooldown example
 import java.util.List;                              // Required for the completion example
 ```
@@ -42,14 +44,22 @@ CommandBuilder builder = CommandBuilder.create(this);
 | `plugin(JavaPlugin plugin)` | Configuration | Sets the plugin that owns the command |
 | `description(String description)` | Configuration | Sets the command description |
 | `usage(String usage)` | Configuration | Sets usage metadata (only readable through the callback parameter `command`; does not affect Brigadier registration) |
-| `permissionMessage(String message)` | Configuration | Sets permission-message metadata (same as above; does not handle permission-denied messages) |
+| `permissionMessage(String message)` | Configuration | Sets the message sent when the sender lacks the required permission |
 | `playerOnly()` | Configuration | Only players can execute |
 | `consoleOnly()` | Configuration | Only the console can execute |
 | `cooldown(Duration duration)` | Configuration | Sets the root command's player cooldown |
+| `cooldownMessage(String message)` | Configuration | Sets the cooldown message (default is fixed English) |
+| `argument(String name, ArgumentType type)` | Configuration | Adds a typed argument |
+| `suggestions(String... values)` | Configuration | Adds static tab-completion suggestions to the latest argument |
+| `suggestOnlinePlayers()` | Configuration | Adds online player names as suggestions to the latest argument |
+| `optional()` | Configuration | Makes the latest argument optional (must be the last argument) |
 | `then(ArgumentBuilder)` | Configuration | Adds a subcommand / child node (after adding, `tabCompleter` no longer applies) |
 | `context(CommandContext)` | Executor | Reuses a command from an existing Brigadier context |
 | `executes(Command)` | Executor | Sets the Brigadier executor |
 | `executes(CommandExecutor)` | Executor | Sets the Bukkit executor |
+| `arguments(CommandArgumentsExecutor)` | Executor | Sets an executor that receives typed arguments |
+| `placeholder(String key, Function)` | Configuration | Registers a custom message placeholder |
+| `messageFormatter(BiFunction)` | Configuration | Replaces the default message formatting entirely |
 | `tabCompleter(TabCompleter)` | Configuration | Sets tab completion (only applies when there are no child nodes) |
 | `register()` | Action | Validates and queues the command (actual registration happens during the COMMANDS event) |
 
@@ -103,6 +113,50 @@ CommandBuilder.create(this)
 ### Priority
 
 If you set more than one executor, the effective order is: `context` > `executes(Command)` > `executes(CommandExecutor)`. Mixing them is not recommended.
+
+## Typed Arguments
+
+Declare arguments with `argument(...)` and handle them with `arguments(...)`:
+
+```java
+CommandBuilder.create(this)
+        .name("give")
+        .argument("player", StringArgumentType.word())
+        .suggestOnlinePlayers()
+        .argument("amount", IntegerArgumentType.integer(1))
+        .arguments((sender, command, label, args) -> {
+            String player = args.getString("player");
+            int amount = args.getInt("amount");
+            sender.sendPlainMessage("Given " + amount + " to " + player);
+            return true;
+        })
+        .register();
+```
+
+- `suggestions(...)` adds static tab-completion values to the latest argument
+- `suggestOnlinePlayers()` suggests online player names
+- `optional()` makes the latest argument optional; `args.contains("name")` tells you whether it was provided
+- `CommandArguments` provides `getString`, `getInt`, `getDouble`, `getBoolean`, and `contains`
+
+## Message Formatting
+
+Cooldown and permission messages support placeholders:
+
+```java
+CommandBuilder.create(this)
+        .name("pay")
+        .permission("myplugin.pay")
+        .permissionMessage("{prefix} You need permission to use this command")
+        .cooldown(Duration.ofSeconds(10))
+        .cooldownMessage("{prefix} Please wait {cooldown} seconds")
+        .placeholder("prefix", sender -> getConfig().getString("message-prefix", "[MyPlugin] "))
+        .executes(...)
+        .register();
+```
+
+- Built-in placeholders include `{player}` and `{cooldown}` (cooldown messages only)
+- `.placeholder(key, resolver)` registers or overrides a placeholder; the resolver receives the command sender
+- `.messageFormatter((template, sender) -> ...)` replaces the default formatting entirely
 
 ## Tab Completion
 

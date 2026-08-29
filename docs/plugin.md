@@ -62,6 +62,7 @@ public final class MyPlugin extends PluginBase {
 | `saveDefaultResource(path)` | Copies a file from the plugin jar into the plugin data folder only if it doesn't already exist |
 | `runSync` / `runAsync` / `runSyncLater` / `runSyncTimer` / `runAsyncTimer` | Schedules tasks; every task created this way is cancelled automatically on disable |
 | `isServerReady` / `runWhenReady` | Runs code once the server has finished starting |
+| `reloadPluginConfig` / `onConfigReload` | Reloads `config.yml` and runs a callback for rebuilding settings |
 | `command()` | Shortcut for `CommandBuilder.create(this)` |
 
 ## Relationship to JavaPlugin

@@ -8,6 +8,10 @@ Every release must be described here in plain, human-readable language. Readers 
 - Commands can show a custom message when a player does not have permission.
 - The command system is now considered stable instead of experimental.
 - Plugins that use the shared starting point can now bundle extra default files (for example, message files) and have them copied into the server automatically when they are missing.
+- Commands can now declare typed inputs (numbers, text, and more) and get player-name autocomplete without writing low-level details.
+- The framework itself now has a basic `/betterplugin` command that shows its version.
+- Plugins that use the shared starting point can now reload their settings with a simple callback.
+- Command messages support custom placeholders and a fully custom formatter.
 - Build checks now warn earlier about outdated internal components.
 
 ## 26.9.1-mc26.1.2 - 2026-08-26

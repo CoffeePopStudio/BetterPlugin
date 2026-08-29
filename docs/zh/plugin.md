@@ -62,6 +62,7 @@ public final class MyPlugin extends PluginBase {
 | `saveDefaultResource(path)` | 把插件 jar 里的文件复制到插件数据目录，仅当目标不存在时执行 |
 | `runSync` / `runAsync` / `runSyncLater` / `runSyncTimer` / `runAsyncTimer` | 调度任务；这些方法创建的任务会在插件卸载时自动取消 |
 | `isServerReady` / `runWhenReady` | 在服务器启动完成后执行代码 |
+| `reloadPluginConfig` / `onConfigReload` | 重新加载 `config.yml`，并通过回调重建配置/任务 |
 | `command()` | `CommandBuilder.create(this)` 的快捷方式 |
 
 ## 与 JavaPlugin 的关系

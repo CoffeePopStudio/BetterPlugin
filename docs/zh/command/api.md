@@ -8,6 +8,8 @@
 import org.bukkit.plugin.java.JavaPlugin;
 import org.coffeepop.betterPlugin.api.command.CommandBuilder;
 import io.papermc.paper.command.brigadier.Commands; // 子命令示例需要
+import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import java.time.Duration;                        // 冷却示例需要
 import java.util.List;                            // 补全示例需要
 ```
@@ -42,14 +44,22 @@ CommandBuilder builder = CommandBuilder.create(this);
 | `plugin(JavaPlugin plugin)` | 配置 | 设置命令归属插件 |
 | `description(String description)` | 配置 | 设置命令描述 |
 | `usage(String usage)` | 配置 | 设置 usage 元数据（只有回调参数 `command` 能读，不影响 Paper 命令注册） |
-| `permissionMessage(String message)` | 配置 | 设置 permission-message 元数据（同上，不负责权限提示） |
+| `permissionMessage(String message)` | 配置 | 设置缺少权限时发送的提示 |
 | `playerOnly()` | 配置 | 仅玩家可执行 |
 | `consoleOnly()` | 配置 | 仅控制台可执行 |
 | `cooldown(Duration duration)` | 配置 | 设置根命令的玩家冷却 |
+| `cooldownMessage(String message)` | 配置 | 设置冷却提示（默认固定英文） |
+| `argument(String name, ArgumentType type)` | 配置 | 添加一个带类型的参数 |
+| `suggestions(String... values)` | 配置 | 给最近的参数添加静态补全 |
+| `suggestOnlinePlayers()` | 配置 | 给最近的参数添加在线玩家名补全 |
+| `optional()` | 配置 | 让最近的参数变为可选（必须是最后一个参数） |
 | `then(ArgumentBuilder)` | 配置 | 添加子命令/子节点（添加后 `tabCompleter` 不生效） |
 | `context(CommandContext)` | 执行器 | 复用已有 Brigadier Context 中的 Command |
 | `executes(Command)` | 执行器 | 设置 Brigadier 执行器 |
 | `executes(CommandExecutor)` | 执行器 | 设置 Bukkit 执行器 |
+| `arguments(CommandArgumentsExecutor)` | 执行器 | 设置接收类型化参数的执行器 |
+| `placeholder(String key, Function)` | 配置 | 注册自定义消息占位符 |
+| `messageFormatter(BiFunction)` | 配置 | 完全替换默认消息格式化 |
 | `tabCompleter(TabCompleter)` | 配置 | 设置 Tab 补全（无子节点时生效） |
 | `register()` | 动作 | 校验并登记命令（真正注册发生在 COMMANDS 事件） |
 
@@ -103,6 +113,50 @@ CommandBuilder.create(this)
 ### 优先级
 
 如果同时设置了多个执行器，生效顺序为：`context` > `executes(Command)` > `executes(CommandExecutor)`。不建议混用。
+
+## 类型化参数
+
+用 `argument(...)` 声明参数，再用 `arguments(...)` 处理：
+
+```java
+CommandBuilder.create(this)
+        .name("give")
+        .argument("player", StringArgumentType.word())
+        .suggestOnlinePlayers()
+        .argument("amount", IntegerArgumentType.integer(1))
+        .arguments((sender, command, label, args) -> {
+            String player = args.getString("player");
+            int amount = args.getInt("amount");
+            sender.sendPlainMessage("给了 " + player + " " + amount + " 个");
+            return true;
+        })
+        .register();
+```
+
+- `suggestions(...)` 给最近的参数添加静态补全
+- `suggestOnlinePlayers()` 自动补全在线玩家名
+- `optional()` 让最近的参数变为可选；`args.contains("name")` 判断是否提供
+- `CommandArguments` 提供 `getString`、`getInt`、`getDouble`、`getBoolean`、`contains`
+
+## 消息格式化
+
+冷却和权限提示支持占位符：
+
+```java
+CommandBuilder.create(this)
+        .name("pay")
+        .permission("myplugin.pay")
+        .permissionMessage("{prefix} 你没有权限使用这个命令")
+        .cooldown(Duration.ofSeconds(10))
+        .cooldownMessage("{prefix} 请等待 {cooldown} 秒")
+        .placeholder("prefix", sender -> getConfig().getString("message-prefix", "[MyPlugin] "))
+        .executes(...)
+        .register();
+```
+
+- 内置占位符包括 `{player}` 和 `{cooldown}`（仅冷却消息）
+- `.placeholder(key, resolver)` 注册或覆盖占位符；resolver 接收命令发送者
+- `.messageFormatter((template, sender) -> ...)` 完全替换默认格式化
 
 ## Tab 补全
 
