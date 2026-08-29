@@ -1,5 +1,6 @@
 package org.coffeepop.betterPlugin.api.event;
 
+import net.kyori.adventure.text.Component;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,7 +42,7 @@ class ListenerRegistryTest {
 
         registry.register(PlayerJoinEvent.class, seen::set);
 
-        PlayerJoinEvent event = new PlayerJoinEvent(player, "joined");
+        PlayerJoinEvent event = new PlayerJoinEvent(player, Component.text("joined"));
         server.getPluginManager().callEvent(event);
 
         assertNotNull(seen.get(), "registered handler should receive the event");
@@ -56,8 +57,23 @@ class ListenerRegistryTest {
 
         registry.unregisterAll();
 
-        server.getPluginManager().callEvent(new PlayerJoinEvent(player, "joined"));
+        server.getPluginManager().callEvent(new PlayerJoinEvent(player, Component.text("joined")));
 
         assertNull(seen.get(), "listener should be removed after unregisterAll");
+    }
+
+    @Test
+    void canRegisterAgainAfterUnregisterAll() {
+        ListenerRegistry registry = new ListenerRegistry(plugin);
+        AtomicReference<PlayerJoinEvent> seen = new AtomicReference<>();
+
+        registry.register(PlayerJoinEvent.class, seen::set);
+        registry.unregisterAll();
+
+        registry.register(PlayerJoinEvent.class, seen::set);
+        PlayerJoinEvent event = new PlayerJoinEvent(player, Component.text("joined"));
+        server.getPluginManager().callEvent(event);
+
+        assertSame(event, seen.get(), "registry should be reusable after unregisterAll");
     }
 }

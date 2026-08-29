@@ -6,6 +6,7 @@ import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
@@ -27,7 +28,7 @@ public final class ListenerRegistry {
      * @param plugin the plugin that owns the listeners
      */
     public ListenerRegistry(JavaPlugin plugin) {
-        this.plugin = plugin;
+        this.plugin = Objects.requireNonNull(plugin, "plugin");
     }
 
     /**
@@ -38,7 +39,7 @@ public final class ListenerRegistry {
      * @param <T>        the event type
      */
     public <T extends Event> void register(Class<T> eventClass, Consumer<T> handler) {
-        register(eventClass, EventPriority.NORMAL, handler, false);
+        register(Objects.requireNonNull(eventClass, "eventClass"), EventPriority.NORMAL, Objects.requireNonNull(handler, "handler"), false);
     }
 
     /**
@@ -51,6 +52,9 @@ public final class ListenerRegistry {
      * @param <T>             the event type
      */
     public <T extends Event> void register(Class<T> eventClass, EventPriority priority, Consumer<T> handler, boolean ignoreCancelled) {
+        Objects.requireNonNull(eventClass, "eventClass");
+        Objects.requireNonNull(priority, "priority");
+        Objects.requireNonNull(handler, "handler");
         plugin.getServer().getPluginManager().registerEvent(
                 eventClass,
                 listener,
